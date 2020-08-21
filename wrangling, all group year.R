@@ -262,13 +262,15 @@ wrangling <- function(i) {
       gy,
       select = c(
         groupyear:year,
-        focal.id:focal.hrs.focalfollowed,
-        partner.id:partner.hrs.focalfollowed,
-        groom.giving:length(gy),
-        r,
-        binary,
-        relationship,
-        focal.connections:per.nonkin.in.top3
+        focal.id,
+        partner.id,
+        r:relationship,
+        DSI:per.nonkin.in.top3,
+        focal.hrs.focalfollowed,
+        partner.hrs.focalfollowed,
+        groom.giving:proximity.rate.over.mean,
+        focal.sex:focal.percofsex.dominanted,
+        partner.sex:partner.percofsex.dominanted
       )
     )
   
