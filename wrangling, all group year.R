@@ -244,16 +244,31 @@ wrangling <- function(i) {
     mutate(DSI = (grooming.rate.over.mean + proximity.rate.over.mean) /
              2)
   
+  gy <- gy %>%
+    group_by(focal.id) %>%
+    mutate(focal.connections = sum (DSI!=0)) %>%
+    mutate(focal.kin.available = sum (binary == "kin")) %>%
+    mutate(order.of.partner = ifelse (DSI==0,0,rank(-DSI,ties.method= "min"))) %>%
+    mutate(top3 = order.of.partner %in% 1:3) %>%
+    mutate(per.kin.in.top3 = sum(binary == "kin" & top3 == T)/sum (top3 == T)) %>%
+    mutate(per.nonkin.in.top3 = sum(binary == "non-kin" & top3 == T)/sum (top3 == T)) %>%
+    mutate(groupyear = i) %>%
+    mutate(group = str_extract(i,"[a-z]+")) %>%
+    mutate(year = str_extract(i,"(\\d)+")) %>%
+    ungroup()
+  
   gy <-
     subset(
       gy,
       select = c(
+        groupyear:year,
         focal.id:focal.hrs.focalfollowed,
         partner.id:partner.hrs.focalfollowed,
         groom.giving:length(gy),
         r,
         binary,
-        relationship
+        relationship,
+        focal.connections:per.nonkin.in.top3
       )
     )
   
@@ -269,6 +284,8 @@ wrangling <- function(i) {
   return(sapply(gy, function(x)
     sum(is.na(x))))
 }
+
+lapply(groupyears, wrangling)
 
 #kk2013 groomings are NA
 #r2016 grooming a lot of NA and 0
