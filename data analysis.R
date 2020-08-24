@@ -69,32 +69,69 @@ top10<-all %>%
   subset(order.of.partner <= 10 & order.of.partner > 0 ) %>%
   mutate(order.of.partner=as.factor(order.of.partner))
 
-p <- ggplot(data = top3, aes(x=order.of.partner, y=DSI)) 
-p <- p + geom_boxplot(aes(fill=binary))
-#p <- p + geom_jitter()
-p <- p + geom_point(aes(y=DSI, group=binary), position = position_dodge(width=0.75))
-p <- p + facet_wrap( ~ order.of.partner, scales="free")
-p <- p + xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")
+p3 <- ggplot(data = top3, aes(x=order.of.partner, y=DSI)) 
+p3 <- p3 + geom_boxplot(aes(fill=binary))
+#p3 <- p3 + geom_jitter()
+p3 <- p3 + geom_point(aes(y=DSI, group=binary), position = position_dodge(width=0.75))
+p3 <- p3 + facet_wrap( ~ order.of.partner, scales="free")
+p3 <- p3 + xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")
 give.n <- function(x){
   return(c(y = median(x)*1.05, label = length(x))) 
 }
-p <- p + stat_summary(fun.data = give.n, geom = "text", fun.y = median, aes(group=binary),
+p3 <- p3 + stat_summary(fun.data = give.n, geom = "text", fun.y = median, aes(group=binary),
                       position = position_dodge(width = 0.75),hjust = 1)
-p <- p + guides(fill=guide_legend(title="Dyad"))
-p 
+p3 <- p3 + guides(fill=guide_legend(title="Dyad"))
+p3
 
-q <- ggplot(data = top10, aes(x=order.of.partner, y=DSI)) 
-q <- q + geom_boxplot(aes(fill=binary))
-#q <- q + geom_jitter()
-q <- q + geom_point(aes(y=DSI, group=binary), position = position_dodge(width=0.75))
-q <- q + facet_wrap( ~ order.of.partner, scales="free")
-q <- q + xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")
-q <- q + guides(fill=guide_legend(title="Dyad"))
+p10 <- ggplot(data = top10, aes(x=order.of.partner, y=DSI)) 
+p10 <- p10 + geom_boxplot(aes(fill=binary))
+#p10 <- p10 + geom_jitter()
+p10 <- p10 + geom_point(aes(y=DSI, group=binary), position = position_dodge(width=0.75))
+p10 <- p10 + facet_wrap( ~ order.of.partner, scales="free")
+p10 <- p10 + xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")
+p10 <- p10 + guides(fill=guide_legend(title="Dyad"))
 give.n <- function(x){
   return(c(y = median(x)*1.05, label = length(x))) 
 }
-q <- q + stat_summary(fun.data = give.n, geom = "text", fun.y = median, aes(group=binary),
+p10 <- p10 + stat_summary(fun.data = give.n, geom = "text", fun.y = median, aes(group=binary),
              position = position_dodge(width = 0.75),hjust = 1)
-q 
+p10 
+
+#longitudinal analysis 
+alllong <- all %>%
+  group_by(focal.id,partner.id) %>%
+  mutate(dyad.total.years = n()) %>%
+  mutate(meanDSI.over.years = mean(DSI)) %>%
+  mutate(sdDSI.over.years = sd(DSI)) %>% 
+  mutate(delta.DSI = c(NA, diff(DSI))) %>%
+  mutate(delta.order = c(NA,diff(order.of.partner))) %>%
+  ungroup() %>%
+  select (groupyear:DSI,dyad.total.years:delta.DSI,focal.connections:order.of.partner,delta.order,top3:partner.percofsex.dominanted)
+
+View(alllong[focal.id=="82A" & partner.id == "04N", c("groupyear","partner.id","DSI","delta.DSI", "order.of.partner","delta.order")])
+
+flong <- alllong %>%
+  subset ( group == "f" & dyad.total.years > 1 & meanDSI.over.years > 0 & top3==T)
+
+sapply(flong, function(x) sum(is.na(x)))
+
+mean(flong$meanDSI.over.years[flong$binary=="kin"])
+mean(flong$meanDSI.over.years[flong$binary=="non-kin"])
+
+mean(flong$sdDSI.over.years[flong$binary=="kin"])
+mean(flong$sdDSI.over.years[flong$binary=="non-kin"])
+
+mean(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)])
+mean(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)])
+
+mean(abs(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)]))
+mean(abs(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)]))
+
+mean(flong$delta.order[flong$binary=="kin" & !is.na(flong$delta.order)])
+mean(flong$delta.order[flong$binary=="non-kin"  & !is.na(flong$delta.order)])
+
+plot(data = flong, meanDSI.over.years~as.factor(binary))
+plot(data = flong, sdDSI.over.years~as.factor(binary))
+
 
 
