@@ -136,7 +136,8 @@ wrangling <- function(i) {
           )
         )
       )
-    ))
+    )) %>% 
+    mutate(relationship = ifelse (is.na(relationship), "unknown",relationship))
   
   #grooming
   
@@ -247,7 +248,7 @@ wrangling <- function(i) {
     group_by(focal.id) %>%
     mutate(focal.connections = sum (DSI!=0)) %>%
     mutate(focal.kin.available = sum (binary == "kin")) %>%
-    mutate(order.of.partner = ifelse (DSI==0,max(rank(-DSI,ties.method= "min")),rank(-DSI,ties.method= "min"))) %>%
+    mutate(order.of.partner = ifelse (DSI==0,NA,rank(-DSI,ties.method= "min"))) %>%
     mutate(top3 = order.of.partner %in% 1:3) %>%
     mutate(per.kin.in.top3 = ifelse (sum(top3 == T) == 0, 0, sum(binary == "kin" & top3 == T)/sum (top3 == T))) %>%
     mutate(per.nonkin.in.top3 = ifelse (sum(top3 == T) == 0, 0, sum(binary == "non-kin" & top3 == T)/sum (top3 == T))) %>%

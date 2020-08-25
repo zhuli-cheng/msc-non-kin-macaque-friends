@@ -4,6 +4,9 @@ library(lattice)
 library(readr)
 library(reshape2)
 library(ggplot2)
+library(dplyr)
+library(stringr)
+library(tidyverse)
 
 #loading data
 filenames <-
@@ -35,30 +38,34 @@ plot(DSI ~ r, data=all)
 plot(DSI ~ as.factor(binary), data=all)
 plot(DSI ~ as.factor(relationship), data=all)
 
-mean(all$DSI[all$binary=="kin"])
-mean(all$DSI[all$binary=="non-kin"])
-sd(all$DSI[all$binary=="kin"])
-sd(all$DSI[all$binary=="non-kin"])
+
+mean(all$DSI[all$binary=="kin"]) #5.89
+mean(all$DSI[all$binary=="non-kin"]) # 0.63
+
+sd(all$DSI[all$binary=="kin"]) #16.34
+sd(all$DSI[all$binary=="non-kin"]) #3.47
 
 nonkintop1<-all %>%
   subset(binary == "non-kin" & order.of.partner == 1)
 
-mean(all$focal.rank)
-mean(nonkintop1$focal.rank)
+unique(nonkintop1$focal.id)
 
-mean(all$focal.age)
-mean(nonkintop1$focal.age)
+mean(all$focal.rank) #31.15
+mean(nonkintop1$focal.rank) #29.62
 
-mean(all$focal.kin.available)
-mean(nonkintop1$focal.kin.available)
+mean(all$focal.age) #12.28
+mean(nonkintop1$focal.age) #11.99
 
-mean(all$focal.connections)
-mean(nonkintop1$focal.connections)
+mean(all$focal.kin.available) #4.05
+mean(nonkintop1$focal.kin.available) #3.12
 
-plot(as.numeric(per.nonkin.in.top3)~as.factor(focal.kin.available))
-plot(as.numeric(per.nonkin.in.top3)~as.factor(focal.connections))
+mean(all$focal.connections) #10.07
+mean(nonkintop1$focal.connections) #10.96
 
-#no matter how many kin available (<=8), there were always non-kin top partner
+
+plot(as.numeric(all$per.nonkin.in.top3)~as.factor(all$focal.kin.available))
+plot(as.numeric(all$per.nonkin.in.top3)~as.factor(all$focal.connections))
+
 
 #kinship and DSI
 top3<-all %>%
@@ -66,7 +73,7 @@ top3<-all %>%
   mutate(order.of.partner=as.factor(order.of.partner))
 
 top10<-all %>%
-  subset(order.of.partner <= 10 & order.of.partner > 0 ) %>%
+  subset(order.of.partner <= 10 ) %>%
   mutate(order.of.partner=as.factor(order.of.partner))
 
 p3 <- ggplot(data = top3, aes(x=order.of.partner, y=DSI)) 
@@ -108,30 +115,63 @@ alllong <- all %>%
   ungroup() %>%
   select (groupyear:DSI,dyad.total.years:delta.DSI,focal.connections:order.of.partner,delta.order,top3:partner.percofsex.dominanted)
 
-View(alllong[focal.id=="82A" & partner.id == "04N", c("groupyear","partner.id","DSI","delta.DSI", "order.of.partner","delta.order")])
+View(alllong[alllong$focal.id=="82A" & alllong$partner.id == "04N", c("groupyear","partner.id","DSI","delta.DSI", "order.of.partner","delta.order")])
 
 flong <- alllong %>%
   subset ( group == "f" & dyad.total.years > 1 & meanDSI.over.years > 0 & top3==T)
 
 sapply(flong, function(x) sum(is.na(x)))
 
-mean(flong$meanDSI.over.years[flong$binary=="kin"])
-mean(flong$meanDSI.over.years[flong$binary=="non-kin"])
+mean(flong$meanDSI.over.years[flong$binary=="kin"]) #22.75
+mean(flong$meanDSI.over.years[flong$binary=="non-kin"]) #4.91
 
-mean(flong$sdDSI.over.years[flong$binary=="kin"])
-mean(flong$sdDSI.over.years[flong$binary=="non-kin"])
+mean(flong$sdDSI.over.years[flong$binary=="kin"]) #13.19
+mean(flong$sdDSI.over.years[flong$binary=="non-kin"]) #5.67
 
-mean(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)])
-mean(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)])
+mean(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)]) #3.53
+mean(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)]) #7.32
 
-mean(abs(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)]))
-mean(abs(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)]))
+mean(abs(flong$delta.DSI[flong$binary=="kin" & !is.na(flong$delta.DSI)])) #15.04
+mean(abs(flong$delta.DSI[flong$binary=="non-kin"  & !is.na(flong$delta.DSI)])) #9.49
 
 mean(flong$delta.order[flong$binary=="kin" & !is.na(flong$delta.order)])
 mean(flong$delta.order[flong$binary=="non-kin"  & !is.na(flong$delta.order)])
 
-plot(data = flong, meanDSI.over.years~as.factor(binary))
-plot(data = flong, sdDSI.over.years~as.factor(binary))
+plot(data = flong, delta.DSI~as.factor(binary))
+plot(data = flong, delta.order~as.factor(binary))
 
+#death of mother
+deadmother<-read.csv("~/Desktop/Non-kin cooperation data/pedigree.csv",header=T,na.strings = c("", "NA")) %>%
+  select("ID","DOD","REMOVE.DATE") %>%
+  subset(!is.na(DOD) | !is.na(REMOVE.DATE)) %>%
+  mutate(DOD = str_replace(DOD,".*/.*/","")) %>%
+  mutate(REMOVE.DATE = str_replace(REMOVE.DATE,".*/.*/","") ) %>%
+  gather(dead.or.removed,year,DOD:REMOVE.DATE,na.rm=T) %>%
+  mutate(dead.or.removed = ifelse(dead.or.removed == "DOD","dead","removed")) %>%
+  setNames(c("focal.behavioral.mother","mother.dead.or.removed","year")) %>%
+  mutate(year = as.numeric(year))
 
+fdeadmother <- all %>%
+  subset(group == "f")
 
+fdeadmother<-left_join(fdeadmother,deadmother, by = c("focal.behavioral.mother","year"))
+
+dummy<-fdeadmother %>%
+  subset(!is.na(mother.dead.or.removed)) %>%
+  select(focal.id,year) %>%
+  setNames(c("focal.id","year.mother.dead.or.removed")) %>%
+  unique()
+
+fdeadmother <- left_join(fdeadmother,dummy,by="focal.id")
+
+fdeadmother <- fdeadmother %>%
+  mutate(mother.alive = ifelse(year.mother.dead.or.removed == year, "mother leaving", ifelse (year < year.mother.dead.or.removed, "mother present", ifelse (year > year.mother.dead.or.removed, "mother dead or removed", NA))))
+
+View(fdeadmother[fdeadmother$focal.id=="14I",c(4,5,49:51)])
+
+fdmanalysis<- fdeadmother %>%
+  select (focal.id,year,per.nonkin.in.top3,mother.alive,focal.connections,focal.kin.available,focal.age,focal.ordinal.rank,focal.percofsex.dominanted,focal.rank) %>%
+  unique() %>%
+  subset(!is.na(mother.alive))
+
+unique(fdmanalysis$focal.id)
