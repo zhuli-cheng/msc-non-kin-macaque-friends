@@ -12,6 +12,7 @@ library(car)
 library(sm)
 library(blmeco)
 library(lmtest)
+library(cowplot)
 
 #loading data
 filenames <-
@@ -42,37 +43,41 @@ all <- all %>%
   ungroup()
 
 #0. general 
-ggplot(all, aes(x=DSI)) +
+
+p1<-ggplot(all, aes(x=DSI)) +
   geom_density()
 
-ggplot(all, aes(x=DSI+0.001)) +
+p2<-ggplot(all, aes(x=DSI+0.001)) +
   geom_density()+
   scale_x_log10(labels = function(x) format(x, scientific = F))
 #most pairs had no interactions 
 
-ggplot(all, aes(x=mean.DSI.gregariousness+0.001)) +
+p3<-ggplot(all, aes(x=mean.DSI.gregariousness+0.001)) +
   geom_density()+
   scale_x_log10(labels = function(x) format(x, scientific = F)) 
 #females differ in gregariousness, some had no interaction at all
 
-
+plot_grid(p1,p2,p4,p3, labels = "AUTO")
 
 #1.1 DSI ~ kinship
 
 #1.1.1 DSI ~ binary
-ggplot(all, aes(x=DSI+0.001, color=binary)) +
+
+p4<-ggplot(all, aes(x=DSI+0.001, color=binary)) +
   geom_density() +
   scale_x_log10(labels = function(x) format(x, scientific = F))
 #kin dyads are more likely to have interactions and higher DSI, but non-kin dyad can also have very high DSI
 
-ggplot(all, aes(x=grooming.rate.over.mean+0.001, color=binary)) +
+p5<-ggplot(all, aes(x=grooming.rate.over.mean+0.001, color=binary)) +
   geom_density() +
   scale_x_log10(labels = function(x) format(x, scientific = F))
 
-ggplot(all, aes(x=proximity.rate.over.mean+0.001, color=binary)) +
+p6<-ggplot(all, aes(x=proximity.rate.over.mean+0.001, color=binary)) +
   geom_density()+
   scale_x_log10(labels = function(x) format(x, scientific = F))
 #grooming is less likely to happen than proximity 
+
+plot_grid(p4,p5,p6, labels = "AUTO")
 
 #1.1.2 DSI ~ r
 ggplot(all,aes(x=r,y=DSI+0.001)) +
@@ -119,7 +124,7 @@ dispersion_glmer(DSI.r.nb.m)
 
 hist(intercep.nb<-coef(DSI.r.nb.m)$focal.id[,1])
 
-
+par(mfrow=c(1,1))
 #1.1.3 DSI ~ relationship
 ggplot(all, aes(x=DSI+0.001, color=relationship)) +
   geom_density() +
@@ -156,7 +161,7 @@ lrtest(top3.binary,top3.binary1)
 #mixed model is slightly better
 
 summary(top3.binary)
-drop1(top3.binary)
+drop1(top3.binary,test="Chisq")
 #binary is significant predictor 
 
 fixed <- fixef(top3.binary)
@@ -168,8 +173,8 @@ IRR
 #check assumptions: no missing combinations;outliers; random intercepts 
 chisq.test(all$top3,all$binary)$expected
 dispersion_glmer(top3.binary)
-hist(intercept<-coef(top3.binary)$group[,1])
-hist(intercept<-coef(top3.binary)$year[,1])
+hist(intercept<-coef(top3.binary)$group[,1]) #only 8 in total
+hist(intercept<-coef(top3.binary)$year[,1]) #only 6 in total
 
 # 1.2.2 top3 ~ r
 
@@ -183,7 +188,7 @@ lrtest(top3.r,top3.r1)
 #mixed model is slightly better
 
 summary(top3.r)
-drop1(top3.r)
+drop1(top3.r,test="Chisq")
 #r is significant predictor 
 
 fixed <- fixef(top3.r)
@@ -208,7 +213,7 @@ ggplot(all) +
 
 #2. longitudinal - F group
 
-alllong <- all %>%
+all.long <- all %>%
   group_by(focal.id,partner.id) %>%
   mutate(dyad.total.years = n()) %>%
   mutate(mean.dyadic.DSI = mean(DSI)) %>%
@@ -219,7 +224,7 @@ alllong <- all %>%
   ungroup() %>%
   dplyr::select(groupyear:DSI,mean.DSI.gregariousness:delta.DSI,focal.connections:order.of.partner,delta.order,top3:partner.percofsex.dominanted)
 
-flong.top3 <- alllong %>%
+flong.top3 <- all.long %>%
   subset ( group == "f" & top3 == T & dyad.total.years > 1 ) %>%
   dplyr::select(focal.id,partner.id,dyad.total.years,mean.dyadic.DSI,sd.dyadic.DSI,sd.DSI.over.mean.DSI,r,binary,top3) %>%
   unique()
@@ -233,33 +238,35 @@ ggplot(data=flong.top3,aes(x=r,y=sd.dyadic.DSI)) +
 ggplot(data=flong.top3,aes(x=r,y=sd.DSI.over.mean.DSI)) +
   geom_count()
 
-ggplot(data=flong.top3,aes(x=mean.dyadic.DSI,color=binary)) +
+p7<-ggplot(data=flong.top3,aes(x=mean.dyadic.DSI,color=binary)) +
   geom_density()
-ggplot(data=flong.top3,aes(x=sd.dyadic.DSI,color=binary)) +
+p8<-ggplot(data=flong.top3,aes(x=sd.dyadic.DSI,color=binary)) +
   geom_density()
-ggplot(data=flong.top3,aes(x=sd.DSI.over.mean.DSI,color=binary)) +
+p9<-ggplot(data=flong.top3,aes(x=sd.DSI.over.mean.DSI,color=binary)) +
   geom_density()
 #non-kin dyad fluctuates more, therefore are less stable... but do they go up or down? 
+plot_grid(p7,p8,p9, labels = "AUTO")
 
 #trend
 flong.top3.dummy<-flong.top3 %>%
   mutate(dyad = paste(focal.id,partner.id,sep = "+"))
 
-flong.yearly<-alllong %>%
+flong.yearly<-all.long %>%
   mutate(dyad = paste(focal.id,partner.id,sep = "+")) %>%
   subset(dyad %in% flong.top3.dummy$dyad)
 
-ggplot(data=flong.yearly,aes(x=delta.DSI,color=binary,na.rm = TRUE)) +
+p10<-ggplot(data=flong.yearly,aes(x=delta.DSI/mean.dyadic.DSI,color=binary,na.rm = TRUE)) +
   geom_density()
-ggplot(data=flong.yearly,aes(x=delta.order,color=binary,na.rm = TRUE)) +
-  geom_density()
-#both kin and non-kin dyads have no tendency of having higher or lower DSI over the years.
+p11<-ggplot(data=flong.yearly,aes(y=delta.DSI/mean.dyadic.DSI,x=r,na.rm = TRUE,color=binary)) +
+  geom_count()
 
-ggplot(data=flong.yearly,aes(y=delta.DSI,x=r,na.rm = TRUE,color=binary)) +
+p12<-ggplot(data=flong.yearly,aes(x=delta.order,color=binary,na.rm = TRUE)) +
+  geom_density()
+p13<-ggplot(data=flong.yearly,aes(y=delta.order,x=r,na.rm = TRUE,color=binary)) +
   geom_count()
-ggplot(data=flong.yearly,aes(y=delta.order,x=r,na.rm = TRUE,color=binary)) +
-  geom_count()
+#both kin and non-kin dyads have no tendency of having higher or lower DSI over the years.
 #also in partner order, they fluctuates rather than going up or down
+plot_grid(p10,p11,p12,p13, labels = "AUTO")
 
 #3. predictors of non-kin partnership 
 #add death of mother
@@ -283,8 +290,14 @@ all.predictors.analysis <- all.predictors %>%
   dplyr::select (focal.id,focal.behavioral.mother,group,year,per.kin.in.top3,per.nonkin.in.top3,mother.alive,mean.DSI.gregariousness,focal.connections,focal.kin.available,focal.age,focal.ordinal.rank,focal.percofsex.dominanted,focal.rank) %>%
   unique()
 
+all.predictors.analysis <- all.predictors.analysis %>%
+  mutate(nonkin.odds = log((per.nonkin.in.top3+0.001)/(per.kin.in.top3+0.001))) %>%
+  subset(focal.kin.available>=3)
+
 #visualisations
+
 all.predictors.analysis %>%
+  subset(group == "f") %>%
   ggplot(aes(year, per.nonkin.in.top3)) +
   geom_point(aes(color = mother.alive)) + 
   facet_wrap(~ focal.id) 
@@ -309,19 +322,12 @@ ggplot(all.predictors.analysis,aes(x=focal.percofsex.dominanted,y=per.nonkin.in.
 
 ggplot(all.predictors.analysis,aes(x=factor(focal.ordinal.rank,level = c("0","L","M","H")),y=per.nonkin.in.top3)) +
   geom_count() 
-
-
-#seems that no one is obviously significant, except for rank... 
   
 
 #modeling 
 
-all.predictors.analysis <- all.predictors.analysis %>%
-  mutate(nonkin.odds = log((per.nonkin.in.top3+0.001)/(per.kin.in.top3+0.001))) %>%
-  subset(focal.kin.available>=3)
-
-predictors<-lmer(per.nonkin.in.top3 ~ mother.alive + focal.age + focal.percofsex.dominanted + focal.kin.available + focal.connections + (1|focal.id), data=all.predictors.analysis)
-predictors1<-lm(per.nonkin.in.top3 ~ mother.alive + focal.age + focal.percofsex.dominanted + focal.kin.available + focal.connections, data=all.predictors.analysis)
+predictors<-lmer(per.nonkin.in.top3 ~ mother.alive + mean.DSI.gregariousness + focal.age + focal.percofsex.dominanted + focal.kin.available + focal.connections + (1|focal.id), data=all.predictors.analysis)
+predictors1<-lm(per.nonkin.in.top3 ~ mother.alive + mean.DSI.gregariousness + focal.age + focal.percofsex.dominanted + focal.kin.available + focal.connections, data=all.predictors.analysis)
 anova(predictors,predictors1)
 #mixed model is slightly better
 
