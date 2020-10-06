@@ -9,18 +9,33 @@ library(stringr)
 library(readr)
 
 #pedigree
-setwd("~/Desktop/Non-kin cooperation data/txt data")
-pedigree <-
-  read.csv("~/Desktop/Non-kin cooperation data/pedigree.csv", header = T)
 
-diffmom <-
-  as.character(pedigree$DAM) %in% c("", as.character(pedigree$BEHAVIORAL.MOM))
-print(pedigree[diffmom == F, ])
+pedigree.data <- 
+  read_tsv("~/Desktop/Non-kin cooperation data/PEDIGREE.txt") %>%
+  setNames(c("ID","SEX","BIRTH","DOD","REMOVE.DATE","DAM","SIRE","BEHAVIORAL.MOM","CS.STATUS","GROUP.AT.BIRTH","CS.BIRTH.SEASON","Comments")) %>%
+  mutate(BEHAVIORAL.MOM = ifelse(BEHAVIORAL.MOM != "?",BEHAVIORAL.MOM,NA)) %>% 
+  mutate(mother = ifelse (is.na(DAM), BEHAVIORAL.MOM,DAM))
 
-pedigree <- pedigree %>%
-  select(ID, SEX, SIRE, BEHAVIORAL.MOM)
+#DAM
+pedigree <- with(pedigree.data, kinship(ID, SIRE, DAM, SEX))
 
-pedigree <- with(pedigree, kinship(ID, SIRE, BEHAVIORAL.MOM, SEX))
+#maternal r 
+pedigree.mom <- pedigree.data %>%
+  mutate (SIRE = sample(1000:100000, nrow(pedigree),replace = F))
+
+pedigree.mom <- with(pedigree.mom, kinship(ID, SIRE, DAM, SEX))
+
+#paternal r
+pedigree.dad <- pedigree.data %>%
+  mutate (DAM = sample(1000:100000, nrow(pedigree),replace = F))
+
+pedigree.dad <- with(pedigree.dad, kinship(ID, SIRE, DAM, SEX))
+
+#pedigree by behavioral mom
+pedigree.assoc <- pedigree.data %>%
+  mutate (SIRE = sample(1000:100000, nrow(pedigree),replace = F))
+
+pedigree.assoc <- with(pedigree.assoc, kinship(ID, SIRE, BEHAVIORAL.MOM, SEX))
 
 #data loading
 filenames <-
@@ -85,6 +100,31 @@ wrangling <- function(i) {
     filter(focal.id != partner.id) %>%
     mutate(r = r * 2)
   
+  gypedigree.mom <-
+    as.data.frame(as.table(pedigree.mom[as.character(gy$id), as.character(gy$id)])) %>%
+    setNames(c("focal.id", "partner.id", "r.mom"))  %>%
+    filter(focal.id != partner.id) %>%
+    mutate(r.mom = r.mom * 2)
+  
+  gypedigree.dad <-
+    as.data.frame(as.table(pedigree.dad[as.character(gy$id), as.character(gy$id)])) %>%
+    setNames(c("focal.id", "partner.id", "r.dad"))  %>%
+    filter(focal.id != partner.id) %>%
+    mutate(r.dad = r.dad * 2)
+  
+  gypedigree.assoc <-
+    as.data.frame(as.table(pedigree.assoc[as.character(gy$id), as.character(gy$id)])) %>%
+    setNames(c("focal.id", "partner.id", "r.assoc"))  %>%
+    filter(focal.id != partner.id) %>%
+    mutate(r.assoc = r.assoc * 2)
+  
+  gypedigree <- left_join(gypedigree, gypedigree.mom)
+  gypedigree <- left_join(gypedigree, gypedigree.dad)
+  gypedigree <- left_join(gypedigree, gypedigree.assoc)
+  
+  gypedigree <- gypedigree %>%
+    mutate(r.minus.assoc = r - r.assoc)
+  
   gydummy <- gy %>%
     rename_all(function(x)
       paste0("partner.", x))
@@ -108,6 +148,7 @@ wrangling <- function(i) {
   
   gy <- gy %>%
     mutate(binary = ifelse(r >= 0.125, "kin", "non-kin")) %>%
+    mutate(age.diff = as.numeric(partner.age) - as.numeric(focal.age)) %>%
     mutate(relationship = ifelse(
       r == 0,
       "non-kin",
@@ -127,7 +168,7 @@ wrangling <- function(i) {
                 focal.behavioral.mother == partner.behavioral.mother,
                 "maternal siblings",
                 ifelse(
-                  focal.father == partner.father,
+                  focal.father == partner.father & ! is.na(focal.father),
                   "paternal siblings",
                   "other kin"
                 )
@@ -162,7 +203,7 @@ wrangling <- function(i) {
     )
   
   gygdummy <- gyg %>%
-    setNames(c("focal.id", "partner.id", "groom.giving"))
+    setNames(c("focal.id", "partner.id", "groom.giving"))  
   
   gy <- full_join(gy, gygdummy, by = c("partner.id", "focal.id"))
   
@@ -171,7 +212,9 @@ wrangling <- function(i) {
   
   gy <- full_join(gy, gygdummy, by = c("partner.id", "focal.id"))
   
-  gy[is.na(gy)] <- 0
+  gy <- gy %>%
+    mutate(groom.giving = ifelse(is.na(groom.giving),0,groom.giving)) %>%
+    mutate(groom.receiving = ifelse(is.na(groom.receiving),0,groom.receiving))
   
   gy <- gy %>%
     mutate(grooming.rate = (groom.giving + groom.receiving) / (
@@ -193,9 +236,12 @@ wrangling <- function(i) {
     ungroup ()
   
   gypdummy1 <- gypdummy %>%
-    select(c("focal.monkey", "focal.total.scan")) %>%
+    dplyr::select(c("focal.monkey", "focal.total.scan")) %>%
     setNames(c("focal.id", "focal.total.scan")) %>%
     unique()
+  
+ 
+  
   
   gy <- left_join(gy, gypdummy1, by = "focal.id")
   
@@ -212,7 +258,7 @@ wrangling <- function(i) {
   gypdummy <- gyp %>%
     group_by(focal.monkey, in.proximity) %>%
     mutate(no.scan = n()) %>%
-    select(4, 5, 9) %>%
+    dplyr::select(4, 5, 9) %>%
     ungroup () %>%
     unique()
   
@@ -226,11 +272,12 @@ wrangling <- function(i) {
   
   gy <- left_join(gy, gypdummy, by = c("partner.id", "focal.id"))
   
-  gy[is.na(gy)] <- 0
+  gy <- gy %>%
+    mutate(focal.no.scan.with.partner = ifelse (is.na(focal.no.scan.with.partner),0,focal.no.scan.with.partner)) %>%
+    mutate(partner.no.scan.with.focal = ifelse (is.na(partner.no.scan.with.focal),0,partner.no.scan.with.focal))
   
   gy <- gy %>%
-    mutate(proximity.rate = ifelse ((focal.total.scan + partner.total.scan ==
-                                       0),
+    mutate(proximity.rate = ifelse ((focal.total.scan + partner.total.scan ==0),
                                     0,
                                     (focal.no.scan.with.partner + partner.no.scan.with.focal) / (focal.total.scan +
                                                                                                    partner.total.scan)
@@ -250,7 +297,9 @@ wrangling <- function(i) {
     mutate(focal.kin.available = sum (binary == "kin")) %>%
     mutate(order.of.partner = ifelse (DSI==0,NA,rank(-DSI,ties.method= "min"))) %>%
     mutate(top3 = order.of.partner %in% 1:3) %>%
-    mutate(per.kin.in.top3 = ifelse (sum(top3 == T) == 0, 0, sum(binary == "kin" & top3 == T)/sum (top3 == T))) %>%
+    mutate(top3.kin = sum(binary == "kin" & top3 == T)) %>%
+    mutate(top3.nonkin = sum(binary == "non-kin" & top3 == T)) %>%
+    mutate(per.kin.in.top3 = ifelse (sum(top3 == T) == 0, 0, sum (binary == "kin" & top3 == T)/sum (top3 == T))) %>%
     mutate(per.nonkin.in.top3 = ifelse (sum(top3 == T) == 0, 0, sum(binary == "non-kin" & top3 == T)/sum (top3 == T))) %>%
     mutate(groupyear = i) %>%
     mutate(group = str_extract(i,"[a-z]+")) %>%

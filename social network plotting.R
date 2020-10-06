@@ -38,7 +38,7 @@ sna<-function (i) {
   
   V(monkey.matrix)$label.cex <- 0.5
   
-  pdf(paste0("~/Desktop/Non-kin cooperation data/graphs/social networks",i,"sna.pdf"))
+  pdf(paste0("~/Desktop/Non-kin cooperation data/graphs/social networks/",i,"sna.pdf"))
   sociogram3 <- plot.igraph(monkey.matrix, vertex.size=3,
                             edge.width=E(monkey.matrix)$weight*0.1,
                             edge.color="black", edge.arrow.size = 0.5)
