@@ -16,7 +16,7 @@ library(cowplot)
 library(glmmTMB)
 library(DHARMa)
 library(rmcorr)
-
+library(mediation)
 
 
 #loading data
@@ -157,6 +157,14 @@ View(summary(DSI.r.OLRE))
 lrtest(DSI.r.OLRE,DSI.r.nb)
 #DSI.r.nb is better
 
+#test association and age difference
+DSI.r.dad <-glmer.nb (DSI ~ r.assoc +  abs(age.diff) + r.minus.assoc + (1|focal.id) + (1|partner.id), data=all, nAGQ=0)
+dispersion_glmer(DSI.r.dad)
+View(summary(DSI.r.dad))
+drop1(DSI.r.dad,test = "Chisq")
+
+lrtest(DSI.r.OLRE,DSI.r.nb)
+
 100*sum(all$DSI == 0)/nrow(all) # more than 80% is zero! test Zero inflation
 simulationOutput <- simulateResiduals(fittedModel = DSI.r.nb)
 testZeroInflation(simulationOutput) #data is not really zero inflated when using negative binomial
@@ -267,6 +275,12 @@ ggplot(data = Top3, aes(x=order.of.partner, y=DSI+0.001) )  +
   stat_summary(fun.data = give.n, geom = "text", fun.y = median, aes(group=binary),
                         position = position_dodge(width = 0.75),hjust = 1)+
   guides(fill=guide_legend(title="Dyad"))
+
+ggplot(data = Top3, aes(x=abs(age.diff), color = binary)) +
+  geom_density()
+
+ggplot(data = Top3[Top3$grooming.rate!=0,], aes(x=groom.giving - groom.receiving, color = binary)) +
+  geom_density()
 
 top3.binary <- glmer(top3 ~ binary + (binary|group) + (binary|year), family = binomial, data=all)
 
