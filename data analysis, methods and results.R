@@ -75,7 +75,7 @@ all <- all %>%
 
 #descriptives
 all.desc<-all %>%
-  dplyr::select(focal.id,group,year,focal.year.of.birth,focal.age,focal.kin.available,focal.percofsex.dominanted,focal.hrs.focalfollowed,focal.total.scan,mean.DSI.gregariousness,dyad.total.years) %>%
+  dplyr::select(focal.id,group,year,focal.year.of.birth,focal.age,focal.kin.available,focal.maternalkin.available,focal.percofsex.dominanted,focal.hrs.focalfollowed,focal.total.scan,mean.DSI.gregariousness) %>%
   unique() %>%
   group_by(focal.id) %>% 
   mutate(focal.years = n()) 
@@ -94,7 +94,12 @@ hist(all.desc$focal.total.scan,breaks=153)
 
 hist(all.desc$mean.DSI.gregariousness)
 
-hist(all.desc$dyad.total.years,breaks = 9)
+ggplot(data = all, aes(x=log(r+0.001))) +
+  geom_density() +
+  facet_wrap(~group,scales="free_y")
+  
+
+
 
 #graphes 
 p1<-ggplot(all, aes(x=DSI)) +
@@ -153,8 +158,9 @@ drop1(DSI.r.nb, test = "Chisq")
 fixed <- fixef(DSI.r.nb)
 confintfixed <- confint(DSI.r.nb, parm = "beta_", method = "Wald") # Beware: The Wald method is less accurate but much, much faster.
 IRR <- exp(cbind(fixed, confintfixed))
-IRR
-exp(8.54/8)
+ratio<-IRR^(0.5-0.125)
+ratio
+
 
 #check assumptions: normality of intercepts and slopes; log of counts is linearly correlated to the predictor; dispersion
 hist(intercep.nb<-coef(DSI.r.nb)$focal.id[,1],breaks=100)
@@ -197,7 +203,7 @@ give.n <- function(x){
 
 ggplot(data = Top3, aes(x=order.of.partner, y=DSI+0.001) )  +
   geom_boxplot(aes(fill=binary)) +
-  geom_count(aes(y=DSI+0.001, group=binary), position = position_dodge(width=0.75))+ 
+  geom_point(aes(y=DSI+0.001, group=binary), position = position_dodge(width=0.75))+ 
   scale_y_log10(labels = function(x) format(x, scientific = F)) +
   facet_wrap( ~ order.of.partner, scales="free") + 
   xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")+
@@ -205,9 +211,7 @@ ggplot(data = Top3, aes(x=order.of.partner, y=DSI+0.001) )  +
                         position = position_dodge(width = 0.75),hjust = 1)+
   guides(fill=guide_legend(title="Dyad"))
 
-top3.binary <- glmer(top3 ~ binary + (binary|group) + (binary|year), family = binomial, data=all)
-
-coef(top3.binary)
+top3.binary <- glmer(top3 ~ binary + (1|group) + (1|year), family = binomial, data=all)
 summary(top3.binary)
 drop1(top3.binary,test="Chisq")
 #binary is significant predictor 
@@ -334,7 +338,7 @@ mother.not.top1 <- predictors %>%
 unique(mother.not.top1$focal.id)
 
 predictors<- predictors %>%
-  dplyr::select (focal.id,focal.behavioral.mother,group,year,per.kin.in.top3,top3.kin,per.nonkin.in.top3,top3.nonkin,mother.presence,mean.DSI.gregariousness,gregariousness.centerred,focal.connections,focal.kin.available,focal.age,focal.ordinal.rank,focal.percofsex.dominanted,focal.rank) %>%
+  dplyr::select (focal.id,focal.behavioral.mother,group,year,per.kin.in.top3,top3.kin,per.nonkin.in.top3,top3.nonkin,mother.presence,mean.DSI.gregariousness,gregariousness.centerred,focal.connections,focal.kin.available,focal.maternalkin.available,focal.age,focal.ordinal.rank,focal.percofsex.dominanted,focal.rank) %>%
   unique() %>%
   subset(focal.kin.available>=3)
 
@@ -363,7 +367,16 @@ predictors <- predictors %>%
 
 #proportional binomial model
 
-predictors.pb <- glmer(top3.nonkin/(top3.total)~mother.presence + mean.age + age.centerred + mean.rank + rank.centerred + mean.kina + kina.centerred + mean.connection + connections.centerred + mean.DSI.gregariousness + gregariousness.centerred + (1|focal.id),weights=top3.total,family=binomial,data=predictors)
+predictors.pb <- glmer(top3.nonkin/(top3.total)
+                       ~ mother.presence 
+                       + mean.age + age.centerred 
+                       + mean.rank + rank.centerred 
+                       + mean.kina + kina.centerred 
+                       + mean.connection + connections.centerred 
+                       + mean.DSI.gregariousness + gregariousness.centerred 
+                       + (1|focal.id),
+                       weights=top3.total,family=binomial,data=predictors)
+
 
 vif(predictors.pb)
 
@@ -382,6 +395,9 @@ age.kina <- predictors %>%
   ungroup()
 
 cor.test(age.kina$mean.age,age.kina$mean.kina)
+
+ggplot(data= predictors, aes(x=focal.maternalkin.available,y=per.nonkin.in.top3)) +
+  geom_count()
 
 #the reason not doing all groups together is because of the collinearity of group and all other predictors. worth doing separate analysis for all groups? 
 #4. others 

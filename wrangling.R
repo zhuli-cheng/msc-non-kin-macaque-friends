@@ -295,6 +295,7 @@ wrangling <- function(i) {
     group_by(focal.id) %>%
     mutate(focal.connections = sum (DSI!=0)) %>%
     mutate(focal.kin.available = sum (binary == "kin")) %>%
+    mutate(focal.maternalkin.available = sum (r.mom >=0.125 )) %>%
     mutate(order.of.partner = ifelse (DSI==0,NA,rank(-DSI,ties.method= "min"))) %>%
     mutate(top3 = order.of.partner %in% 1:3) %>%
     mutate(top3.kin = sum(binary == "kin" & top3 == T)) %>%

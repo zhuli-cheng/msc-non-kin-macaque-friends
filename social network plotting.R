@@ -26,28 +26,63 @@ groupyears <-
   )
 
 sna<-function (i) {
-  gysna<-read.csv(file=paste0("~/Desktop/Non-kin cooperation data/wrangled data/",i,"DSI.csv"),header=T) %>%
-                    select(c("focal.id","partner.id","DSI")) %>%
-    mutate(DSI=as.numeric(DSI))
+  dd<-read.csv(file=paste0("~/Desktop/Non-kin cooperation data/wrangled data/",i,"DSI.csv"),header=T) %>%
+    mutate(DSI = ifelse(binary == "kin",DSI,-DSI)) %>%
+    mutate(DSI = ifelse (binary == "kin" & DSI == 0,10000,DSI))%>%
+    dplyr::select(c("focal.id","partner.id","DSI"))
   
-  gysna<-as.matrix(cast(gysna, focal.id~partner.id,margins=c("partner.id","focal.id")))
+  dd<-as.matrix(cast(dd, focal.id~partner.id,margins=c("partner.id","focal.id")))
+  dd[is.na(dd)] <- 0
   
-  gysna[is.na(gysna)] <- 0
+  G<-graph.adjacency(dd,mode="undirected",weighted=T) 
   
-  monkey.matrix=graph.adjacency(gysna,mode="undirected",weighted=T)
+  E(G)$color <- ifelse (E(G)$weight ==10000,"orange",ifelse(E(G)$weight < 0,"blue","red"))
+  E(G)$lty <- ifelse(E(G)$weight==10000,"dotdash","solid")
+  E(G)$weight <- ifelse(E(G)$weight == 10000,1,abs(E(G)$weight))
   
-  V(monkey.matrix)$label.cex <- 0.5
+  V(G)$label.cex <- 0.5
+  
   
   pdf(paste0("~/Desktop/Non-kin cooperation data/graphs/social networks/",i,"sna.pdf"))
-  sociogram3 <- plot.igraph(monkey.matrix, vertex.size=3,
-                            edge.width=E(monkey.matrix)$weight*0.1,
-                            edge.color="black", edge.arrow.size = 0.5)
+  
+  plot.igraph(G,vertex.size=3,
+              edge.width=E(G)$weight*0.1,
+              vertex.frame.color="#ffffff")
+  
   dev.off()
   
 }
 
-
-
 lapply(groupyears, sna)
 
+
+sna.maternal<-function (i) {
+  dd<-read.csv(file=paste0("~/Desktop/Non-kin cooperation data/wrangled data/",i,"DSI.csv"),header=T) %>%
+    mutate(DSI = ifelse(r.mom>=0.125,DSI,-DSI)) %>%
+    mutate(DSI = ifelse (r.mom>=0.125 & DSI == 0,10000,DSI))%>%
+    dplyr::select(c("focal.id","partner.id","DSI"))
+  
+  dd<-as.matrix(cast(dd, focal.id~partner.id,margins=c("partner.id","focal.id")))
+  dd[is.na(dd)] <- 0
+  
+  G<-graph.adjacency(dd,mode="undirected",weighted=T) 
+  
+  E(G)$color <- ifelse (E(G)$weight ==10000,"orange",ifelse(E(G)$weight < 0,"blue","red"))
+  E(G)$lty <- ifelse(E(G)$weight==10000,"dotdash","solid")
+  E(G)$weight <- ifelse(E(G)$weight == 10000,1,abs(E(G)$weight))
+  
+  V(G)$label.cex <- 0.5
+
+  
+  pdf(paste0("~/Desktop/Non-kin cooperation data/graphs/social networks/maternal",i,"sna.pdf"))
+  
+  plot.igraph(G,vertex.size=3,
+              edge.width=E(G)$weight*0.1,
+              vertex.frame.color="#ffffff")
+  
+  dev.off()
+  
+}
+
+lapply(groupyears, sna.maternal)
 
