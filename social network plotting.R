@@ -26,9 +26,10 @@ groupyears <-
   )
 
 sna<-function (i) {
-  dd<-read.csv(file=paste0("~/Desktop/Non-kin cooperation data/wrangled data/",i,"DSI.csv"),header=T) %>%
-    mutate(DSI = ifelse(binary == "kin",DSI,-DSI)) %>%
-    mutate(DSI = ifelse (binary == "kin" & DSI == 0,10000,DSI))%>%
+  data<-read.csv(file=paste0("~/Desktop/Non-kin cooperation data/wrangled data/",i,"DSI.csv"),header=T) %>%
+    mutate(DSI = ifelse(binary == "kin",DSI,-DSI)) 
+  
+  dd <- data %>%
     dplyr::select(c("focal.id","partner.id","DSI"))
   
   dd<-as.matrix(cast(dd, focal.id~partner.id,margins=c("partner.id","focal.id")))
@@ -36,18 +37,21 @@ sna<-function (i) {
   
   G<-graph.adjacency(dd,mode="undirected",weighted=T) 
   
-  E(G)$color <- ifelse (E(G)$weight ==10000,"orange",ifelse(E(G)$weight < 0,"blue","red"))
-  E(G)$lty <- ifelse(E(G)$weight==10000,"dotdash","solid")
-  E(G)$weight <- ifelse(E(G)$weight == 10000,1,abs(E(G)$weight))
+  E(G)$color <- ifelse (E(G)$weight < 0,"darkturquoise","bisque2")
+  E(G)$weight <- abs(E(G)$weight)
   
+  V(G)$kin.available=as.numeric(data$focal.kin.available[match(V(G)$name,data$focal.id)])
+  
+    
   V(G)$label.cex <- 0.5
   
   
   pdf(paste0("~/Desktop/Non-kin cooperation data/graphs/social networks/",i,"sna.pdf"))
   
-  plot.igraph(G,vertex.size=3,
+  plot.igraph(G,vertex.size=V(G)$kin.available,
               edge.width=E(G)$weight*0.1,
-              vertex.frame.color="#ffffff")
+              vertex.frame.color="#ffffff",
+              vertex.color = "bisque1")
   
   dev.off()
   

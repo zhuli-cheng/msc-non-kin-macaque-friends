@@ -94,12 +94,10 @@ hist(all.desc$focal.total.scan,breaks=153)
 
 hist(all.desc$mean.DSI.gregariousness)
 
-ggplot(data = all, aes(x=log(r+0.001))) +
+ggplot(data = all, aes(x=r)) +
   geom_density() +
-  facet_wrap(~group,scales="free_y")
+  facet_wrap(~group)
   
-
-
 
 #graphes 
 p1<-ggplot(all, aes(x=DSI)) +
@@ -140,9 +138,8 @@ ggplot(all, aes(x=DSI+0.001, color=relationship)) +
 #1.1.1 DSI ~ r
 ggplot(all,aes(x=r,y=DSI+0.001)) +
   geom_count(alpha=0.5) + 
-  scale_y_log10(labels = function(x) format(x, scientific = F)) +
-  facet_wrap(~group,scales="free_y")
-  
+  scale_y_log10(labels = function(x) format(x, scientific = F)) 
+
 
 xyplot(log(DSI+0.001)~r|focal.id,pch=16,cex=0.6, type=c("p","r"),data=all)
 #the slopes are rather uniform
@@ -158,6 +155,7 @@ drop1(DSI.r.nb, test = "Chisq")
 fixed <- fixef(DSI.r.nb)
 confintfixed <- confint(DSI.r.nb, parm = "beta_", method = "Wald") # Beware: The Wald method is less accurate but much, much faster.
 IRR <- exp(cbind(fixed, confintfixed))
+IRR
 ratio<-IRR^(0.5-0.125)
 ratio
 
@@ -177,39 +175,34 @@ simulationOutput <- simulateResiduals(fittedModel = DSI.r.nb)
 testZeroInflation(simulationOutput) #data is not really zero inflated when using negative binomial
 plot(simulationOutput)
 
-
-#test maternal/paternal kinship and age difference
-DSI.r.dad <-glmer.nb (DSI ~ r.mom + r.dad + abs(age.diff) + (1|focal.id) + (1|partner.id), data=all, nAGQ=0)
-dispersion_glmer(DSI.r.dad)
-summary(DSI.r.dad)
-drop1(DSI.r.dad,test = "Chisq")
-hist(coef(DSI.r.dad)$focal.id)
-
-
 #1.2 top3 ~ kinship
 
 #1.2.1 top3 ~ binary
 ggplot(all) + 
   geom_bar(aes(x = binary, fill = top3)) +
-  facet_wrap(~group,scales="free_y")
+  scale_fill_manual(values=c("grey","#d1495b"))+
+  facet_wrap(~group,scales="free_y") 
+  
 
 Top3<-all %>%
   subset(top3==T) %>%
   mutate(order.of.partner=as.factor(order.of.partner))
 
 give.n <- function(x){
-  return(c(y = median(x)*1.05, label = length(x))) 
+  return(c(y = median(x), label = length(x)))
 }
 
 ggplot(data = Top3, aes(x=order.of.partner, y=DSI+0.001) )  +
-  geom_boxplot(aes(fill=binary)) +
-  geom_point(aes(y=DSI+0.001, group=binary), position = position_dodge(width=0.75))+ 
+  geom_violin(aes(fill=binary)) + 
+  scale_fill_manual(values=c("bisque", "darkturquoise"))+
   scale_y_log10(labels = function(x) format(x, scientific = F)) +
-  facet_wrap( ~ order.of.partner, scales="free") + 
-  xlab("Top Partners") + ylab("DSI") + ggtitle("All Group Years")+
+  facet_wrap( ~ order.of.partner, scales="free_x") + 
+  xlab("Order of partnership") + ylab("DSI") + ggtitle("Numbers of kin and nonkin as top partners and their DSI")+
   stat_summary(fun.data = give.n, geom = "text", fun = median, aes(group=binary),
-                        position = position_dodge(width = 0.75),hjust = 1)+
-  guides(fill=guide_legend(title="Dyad"))
+                        position = position_dodge(width = 1),hjust = 0.5)+
+  guides(fill=guide_legend(title="Dyadic relatedness"))
+
+
 
 top3.binary <- glmer(top3 ~ binary + (1|group) + (1|year), family = binomial, data=all)
 summary(top3.binary)
@@ -227,26 +220,13 @@ chisq.test(all$top3,all$binary)$expected
 
 
 #2 compare kin vs nonkin top3
-ggplot(data = Top3, aes(x=DSI+0.001) )  +
-  geom_density(aes(color=binary)) +
-  facet_wrap( ~ order.of.partner, scales="free") +
-  scale_x_log10(labels = function(x) format(x, scientific = F)) 
 
+DSI.binary <- lmer (log(DSI) ~ binary * order.of.partner + (1|dyad) , data=Top3)
+qqPlot(residuals(DSI.binary))
 
-ggplot(data = Top3, aes(x=abs(age.diff), color = binary)) +
-  geom_density() +
-  facet_wrap( ~ order.of.partner, scales="free") 
-
-ggplot(data = Top3[Top3$grooming.rate!=0,], aes(x=abs(groom.giving - groom.receiving)/(groom.giving + groom.receiving), color = binary)) +
-  geom_density() 
-
-#compare kin and non-kin top 1/2/3 partners
-for (i in 3) {
-  print(t.test(data = Top3[Top3$order.of.partner==i,], log(DSI) ~ binary))
-  print(cohen.d(data = Top3[Top3$order.of.partner==i,], log(DSI) ~ binary))
-  print(wilcox.test(data = Top3[Top3$order.of.partner==i,], abs(age.diff) ~ binary))
-  print(wilcox.test(data = Top3[Top3$order.of.partner==i & Top3$grooming.rate!=0,], abs(groom.giving - groom.receiving)/(groom.giving + groom.receiving) ~ binary))
-}
+summary(DSI.binary)
+Anova(DSI.binary)
+drop1(DSI.binary, test = "Chisq")
 
 
 #2.2 stability 
@@ -271,46 +251,38 @@ fluctuation <- f.top3 %>%
   group_by(dyad) %>%
   mutate(mean.dyadic.DSI = mean(DSI)) %>%
   mutate(sd.dyadic.DSI = sd(DSI)) %>% 
-  mutate(sd.DSI.over.mean.DSI = sd.dyadic.DSI/mean.dyadic.DSI) %>%
+  mutate(RSD = sd.dyadic.DSI/mean.dyadic.DSI ) %>%
   ungroup() %>%
-  dplyr::select(focal.id,partner.id,dyad.total.years,mean.dyadic.DSI,sd.dyadic.DSI,sd.DSI.over.mean.DSI,r,binary,top3) %>%
+  dplyr::select(focal.id,partner.id,dyad.total.years,mean.dyadic.DSI,sd.dyadic.DSI,RSD,r,binary,top3,dyad) %>%
   unique()
 
 sapply(fluctuation, function(x) sum(is.na(x)))
 
-ggplot(data=fluctuation,aes(x=sd.DSI.over.mean.DSI,color=binary)) +
-  geom_density()
-#non-kin dyad fluctuates more, therefore are less stable... but do they go up or down? 
+ggplot(data=fluctuation,aes(x=RSD*100,color=binary)) +
+  geom_density() +
+  xlab("SD/mean of dyadic DSIs over the years in percentage")
 
+fluctuation.binary <- lmer(RSD ~ binary + (1|focal.id) + (1|partner.id),data = fluctuation)
+hist(fluctuation.binary@u)
+summary(fluctuation.binary)
+drop1(fluctuation.binary,test = "Chisq")
 
-#years in top3
+#stability
 years.in.top3 <- f.top3 %>%
   group_by(dyad) %>%
-  mutate(years.in.top3 = sum(top3)/n()) %>%
+  mutate(years.in.top3 = sum(top3)) %>%
   ungroup() %>%
-  dplyr::select(r,binary,relationship,focal.id,partner.id,dyad,years.in.top3) %>%
+  dplyr::select(r,binary,relationship,focal.id,partner.id,dyad,years.in.top3,dyad.total.years) %>%
   unique()
 
 ggplot(data=years.in.top3,aes(x=years.in.top3,color = binary)) +
   geom_density()
 
+stability.binary <- glmer (years.in.top3/dyad.total.years ~ binary + (1|focal.id) + (1|partner.id), weight = dyad.total.years,data = years.in.top3,family = binomial)
+#test assumptions !
+summary(stability.binary)
+drop1(stability.binary,test = "Chisq")
 #disparity
-disparity <- f.top3 %>%
-  group_by(dyad) %>%
-  mutate (groom.giving.total = sum(groom.giving)) %>%
-  mutate (groom.receiving.total = sum(groom.receiving)) %>% 
-  mutate(groom.total = groom.giving.total + groom.receiving.total) %>%
-  subset(groom.total != 0) %>%
-  mutate(disparity = abs(groom.giving.total - groom.receiving.total)/ (groom.giving.total + groom.receiving.total)) %>%
-  dplyr::select(dyad,binary,groom.giving.total,groom.receiving.total,disparity) %>% 
-  ungroup()%>%
-  unique()
-
-#post hoc: years in top3 and disparity
-years.disparity <- full_join(years.in.top3,disparity)
-
-ggplot(aes(y = years.in.top3, x = disparity, color = binary), data = years.disparity) +
-  geom_count()
 
 
 #3. predictors of non-kin partnership 
@@ -378,6 +350,8 @@ predictors.pb <- glmer(top3.nonkin/(top3.total)
                        weights=top3.total,family=binomial,data=predictors)
 
 
+
+
 vif(predictors.pb)
 
 summary(predictors.pb)
@@ -385,7 +359,21 @@ drop1(predictors.pb,test="Chisq")
 
 qqPlot(residuals(predictors.pb))
 plot(residuals(predictors.pb)~fitted(predictors.pb))
-hist(predictors.pb@u)
+hist(predictors.pb1@u)
+
+#model update
+predictors.pb1 <- glmer(top3.nonkin/(top3.total)
+                       ~ 
+                       + mean.age
+                       + mean.kina + kina.centerred 
+                       + gregariousness.centerred 
+                       + (1|focal.id),
+                       weights=top3.total,family=binomial,data=predictors)
+
+fixed <- fixef(predictors.pb1)
+confintfixed <- confint(predictors.pb1, parm = "beta_", method = "Wald") # Beware: The Wald method is less accurate but much, much faster.
+IRR <- exp(cbind(fixed, confintfixed))
+IRR
 
 #correlation between age and kin available
 age.kina <- predictors %>% 
@@ -423,3 +411,20 @@ p10
 #non-kin dyads: characteristics, i.e. similar age or rank?
 #grooming equality
 
+nonkin <- all %>%
+  subset (binary == "non-kin") 
+
+model <- glmer.nb (DSI ~ abs(focal.percofsex.dominanted - partner.percofsex.dominanted) + (1|focal.id) + (1|partner.id), data = nonkin,nAGQ=0)
+
+ggplot(nonkin,aes(x=abs(focal.percofsex.dominanted - partner.percofsex.dominanted),y=grooming.rate.over.mean)) +
+  geom_count(alpha=0.5) + 
+  scale_y_log10(labels = function(x) format(x, scientific = F))
+
+nonkin1 <- nonkin %>%
+  subset(grooming.rate != 0)
+
+ggplot(nonkin1,aes(x=abs(focal.percofsex.dominanted - partner.percofsex.dominanted),y= abs(groom.giving - groom.receiving)/(groom.giving + groom.receiving))) +
+  geom_point(alpha=0.5) 
+
++ 
+  scale_y_log10(labels = function(x) format(x, scientific = F)) 
