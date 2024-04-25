@@ -1,2 +1,2 @@
 # msc-non-kin-macaque-friends
-MSc Exeter, social monkeys
+This is the repository of the data and R scripts used for this publication: 
