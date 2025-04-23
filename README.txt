@@ -1,4 +1,4 @@
-This directory contains all input data (?) and R scripts that are needed to reproduce the results and figures in this publication: 
+This directory contains input data and R scripts that are needed to reproduce the results and figures in this publication: 
 
 It also contains an output folder produced from running the scripts on the input data. 
 
@@ -16,4 +16,6 @@ Results from CalculateDSI.R will save into the folder: ./output/DSI. This folder
     1. Q1.R
     2. Q2.R
     3. Q3.R
-    4. SupplementaryMaterials.R
+    4. Appendices.R
+
+Note: the input folder and output/DSI folder are not uploaded on the GitHub page. Instead, analyses can be run using the output/DSI_scrambled.csv file. 
