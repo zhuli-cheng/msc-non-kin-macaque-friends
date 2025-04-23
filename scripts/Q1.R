@@ -265,6 +265,6 @@ figure1 <- ((figure1a + figure1b) / (figure1c + figure1d)) / legend +
   plot_layout(heights = c(10, 10, 1), widths = c(1, 1)); figure1
 
 ggsave("../output/figures_main_text/Figure1.svg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "svg")
-ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
+#ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
 
 

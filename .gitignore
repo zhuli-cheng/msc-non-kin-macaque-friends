@@ -1,5 +1,16 @@
 input/
 
+output/figures_main_text/Figure1a.svg
+output/figures_main_text/Figure1b.svg
+output/figures_main_text/Figure1c.svg
+output/figures_main_text/Figure1d.svg
+
+output/figures_main_text/Figure2a.svg
+output/figures_main_text/Figure2b.svg
+
+output/DSI
+
+
 .DS_Store
 
 .Rproj.user

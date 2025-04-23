@@ -29,8 +29,8 @@ figure.sup1 <- ggplot(pedigree.depth, aes(x = focal.kin.available, y = depth)) +
   theme(axis.text.y  = element_text(vjust = 0.5, size = 12, colour = "black")) +
   theme(axis.title = element_text(size = 14, vjust = -5))  +
   labs(color = " ", x = "Number of available kin", y = "Pedigree depth", size = "No. of female-years"); figure.sup1
-ggsave("../output/supplementary_materials/PedigreeDepthKinAvailability.svg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "svg")
-ggsave("../output/supplementary_materials/PedigreeDepthKinAvailability.jpeg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "jpeg")
+ggsave("../output/figures_main_text/FigureA2.svg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/PedigreeDepthKinAvailability.jpeg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "jpeg")
 
 
 pedigree.depth.group <- pedigree.depth %>%
@@ -53,8 +53,8 @@ figure.sup2 <- ggplot(pedigree.depth.group, aes(x = depth)) +
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=14),
         strip.text = element_text(size = 14)); figure.sup2
-ggsave("../output/supplementary_materials/PedigreeDepthByGroup.svg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "svg")
-ggsave("../output/supplementary_materials/PedigreeDepthByGroup.jpeg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "jpeg")
+ggsave("../output/figures_main_text/FigureA1.svg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/PedigreeDepthByGroup.jpeg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "jpeg")
 
 
 

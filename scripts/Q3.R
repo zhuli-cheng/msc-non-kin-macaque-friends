@@ -122,7 +122,7 @@ figure3 <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonk
 
 
 ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "svg")
-ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "jpeg")
+#ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "jpeg")
 
 
 

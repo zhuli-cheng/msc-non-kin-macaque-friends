@@ -132,7 +132,7 @@
 <polyline points='47.57,217.12 50.31,217.12 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='47.57,136.80 50.31,136.80 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
 <polyline points='47.57,56.48 50.31,56.48 ' style='stroke-width: 1.07; stroke: #333333; stroke-linecap: butt;' />
-<text x='382.42' y='423.42' text-anchor='middle' style='font-size: 14.00px; font-family: "Arial";' textLength='175.06px' lengthAdjust='spacingAndGlyphs'>Social bond duration (years)</text>
-<text transform='translate(15.52,210.93) rotate(-90)' text-anchor='middle' style='font-size: 14.00px; font-family: "Arial";' textLength='168.84px' lengthAdjust='spacingAndGlyphs'>Percentage of social bonds</text>
+<text x='382.42' y='423.42' text-anchor='middle' style='font-size: 14.00px; font-family: "Arial";' textLength='186.73px' lengthAdjust='spacingAndGlyphs'>Total number of years bonded</text>
+<text transform='translate(15.52,210.93) rotate(-90)' text-anchor='middle' style='font-size: 14.00px; font-family: "Arial";' textLength='178.97px' lengthAdjust='spacingAndGlyphs'>Percentage of bonded dyads</text>
 </g>
 </svg>

@@ -209,4 +209,4 @@ figure2 <- (figure2a + figure2b)  +
   plot_layout(widths = c(1, 1)); figure2
 
 ggsave("../output/figures_main_text/Figure2.svg", plot = figure2, width = 10, height = 6, dpi = 1200, device = "svg")
-ggsave("../output/figures_main_text/Figure2.jpeg", plot = figure2, width = 10, height = 6, dpi = 1200, device = "jpeg")
+#ggsave("../output/figures_main_text/Figure2.jpeg", plot = figure2, width = 10, height = 6, dpi = 1200, device = "jpeg")
