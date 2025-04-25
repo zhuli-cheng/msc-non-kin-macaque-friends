@@ -18,4 +18,4 @@ Results from CalculateDSI.R will save into the folder: ./output/DSI. This folder
     3. Q3.R
     4. Appendices.R
 
-Note: the input folder and output/DSI folder are not uploaded on the GitHub page. Instead, analyses can be run using the output/DSI_scrambled.csv file. 
+IMPORTANT: the input folder and output/DSI folder are not uploaded on the GitHub page. Instead, analyses can be run using the output/DSI_scrambled.csv file. 
