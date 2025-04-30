@@ -26,7 +26,7 @@ DSI.r.tweedie <- glmmTMB(DSI  ~ r +
                          family=tweedie(link="log"))
 
 #assumptions 1a
-simout  <-  simulateResiduals (DSI.r.tweedie, n = 1000); plot(simout)
+simout  <-  simulateResiduals(DSI.r.tweedie, n = 1000); plot(simout)
 hist(intercep.tweedie <- ranef(DSI.r.tweedie)$cond$partner1[[1]], breaks = 100)
 hist(intercep.tweedie <- ranef(DSI.r.tweedie)$cond$partner2[[1]], breaks = 100)
 hist(intercep.tweedie <- ranef(DSI.r.tweedie)$cond$dyad[[1]], breaks = 100)
@@ -109,7 +109,7 @@ top3.kinship.REML <- glmmTMB(top3 ~ r +
                              data = all.dyads.1b)
 
 #assumptions 1b
-simout  <-  simulateResiduals (top3.kinship.REML, n = 1000); plot(simout)
+simout  <-  simulateResiduals(top3.kinship.REML, n = 1000); plot(simout)
 hist(intercept <- ranef(top3.kinship.REML)$cond$id[, 1], breaks = 100)
 hist(intercept <- ranef(top3.kinship.REML)$cond$partner[, 1], breaks = 100) #?
 hist(intercept <- ranef(top3.kinship.REML)$cond$dyad[, 1], breaks = 100)
@@ -123,13 +123,6 @@ summary(top3.kinship.REML)
 #model output: r
 fixed <- fixef(top3.kinship.REML); fixed
 confintfixed <- confint(top3.kinship.REML, parm = "beta_", method = "Wald"); confintfixed
-#compare r=0 to r=0.5
-exp(fixed$cond[1] + fixed$cond[2] * 0) #odds for r = 0 to form bonds
-exp(fixed$cond[1] + fixed$cond[2] * 0)/(1 + exp(fixed$cond[1] + fixed$cond[2] * 0)) #probability
-exp(fixed$cond[1] + fixed$cond[2] * 0.5) #odds for r = 0.5 to form bonds
-exp(fixed$cond[1] + fixed$cond[2] * 0.5)/(1 + exp(fixed$cond[1] + fixed$cond[2] * 0.5)) #probability
-exp(fixed$cond[1] + fixed$cond[2] * 0.5) / exp(fixed$cond[1] + fixed$cond[2] * 0) #odds ratio
-exp(fixed$cond[1] + fixed$cond[2] * 0.5)/(1 + exp(fixed$cond[1] + fixed$cond[2] * 0.5))/(exp(fixed$cond[1] + fixed$cond[2] * 0)/(1 + exp(fixed$cond[1] + fixed$cond[2] * 0))) #probability "ratio"
 
 #plot
 predictions.1b <- ggpredict(
@@ -144,17 +137,17 @@ predictions.1b$predicted[predictions.1b$x == 0] #probability
 predictions.1b$predicted[predictions.1b$x == 0.5] #probability
 predictions.1b$predicted[predictions.1b$x == 0.5]/predictions.1b$predicted[predictions.1b$x == 0]
 
-tmp <- all.dyads %>%
+discussion <- all.dyads %>%
   group_by(id, group.year) %>%
   mutate(m.5 = sum(r == 0.5)) %>%
   mutate(m.0 = sum(r==0)) %>%
   ungroup()
 
-mean(tmp$m.5)
-mean(tmp$m.0)
+mean(discussion$m.5)
+mean(discussion$m.0)
 
-mean(tmp$m.5)*predictions.1b$predicted[predictions.1b$x == 0.5]
-mean(tmp$m.0)*predictions.1b$predicted[predictions.1b$x == 0]
+mean(discussion$m.5)*predictions.1b$predicted[predictions.1b$x == 0.5]
+mean(discussion$m.0)*predictions.1b$predicted[predictions.1b$x == 0]
 
 
 figure1b <- ggplot(all.dyads.1b, aes(x = r)) +
@@ -225,7 +218,7 @@ model.nonkin <-glmer(cbind(top3.nonkin, top3.kin) ~
 #both models gave the same results [using cbind (top3.nonkin, top3.total-top3.nonkin), and using top3.kin/top3.total]
 
 #assumptions 1c
-simout  <-  simulateResiduals (model.nonkin, n = 250); plot(simout)
+simout  <-  simulateResiduals (model.nonkin, n = 1000); plot(simout)
 hist(intercep <- coef(model.nonkin)$id[, 1], breaks = 100)
 hist(intercep <- coef(model.nonkin)$social.group[, 1], breaks = 100)
 hist(intercep <- coef(model.nonkin)$year[, 1], breaks = 100)

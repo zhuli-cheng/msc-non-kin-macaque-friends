@@ -61,15 +61,15 @@ nrow(years.in.top3[years.in.top3$kinship == "non-kin" & years.in.top3$years.in.t
 
 
 #model 2a
-duration.kinship <- glmer(cbind(years.in.top3, (dyad.total.years - years.in.top3)) ~ maximal.dyadic.DSI + 
+duration.kinship <- glmer(years.in.top3/dyad.total.years ~ maximal.dyadic.DSI + 
                             kinship + 
                             (1 | id) + 
                             (1 | partner),
                           data = years.in.top3, 
+                          weights = dyad.total.years,
                           family = binomial)
-
 #assumptions 2a
-simout  <-  simulateResiduals (duration.kinship, n = 250); plot(simout)
+simout  <-  simulateResiduals (duration.kinship, n = 1000); plot(simout)
 vif(duration.kinship)
 hist(intercep <- coef(duration.kinship)$id[, 1], breaks = 100)
 hist(intercep <- coef(duration.kinship)$partner[, 1], breaks = 100)
@@ -158,7 +158,7 @@ variability.kinship <- lmer(RSD ~ kinship +
 
 
 #assumptions 2b
-simout  <-  simulateResiduals (variability.kinship, n = 250); plot(simout)
+simout  <-  simulateResiduals (variability.kinship, n = 1000); plot(simout)
 hist(intercep <- coef(variability.kinship)$id[, 1], breaks = 100)
 hist(intercep <- coef(variability.kinship)$partner[, 1], breaks = 100)
 hist(variability.kinship@u)
@@ -168,7 +168,7 @@ plot(residuals(variability.kinship) ~ fitted(variability.kinship))
 
 #results 2b
 summary(variability.kinship)
-drop1(variability.kinship, test = "Chisq")
+stats::drop1(variability.kinship, test = "Chisq")
 
 #model output
 fixed <- fixef(variability.kinship); fixed

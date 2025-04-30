@@ -66,7 +66,7 @@ model3 <- glmer (cbind(top3.nonkin, top3.kin) ~
 
 
 #assumptions 3
-simout  <-  simulateResiduals (model3, n = 250); plot(simout)
+simout  <-  simulateResiduals (model3, n = 1000); plot(simout)
 testOutliers(simout, type = 'bootstrap', nBoot = 100, plot = T)
 
 vif(model3)
@@ -87,7 +87,6 @@ drop1(model3, test = "Chisq")
 #model output
 fixed <- fixef(model3); fixed
 confintfixed <- confint(model3, parm = "beta_", method = "Wald"); confintfixed
-CI <- exp(cbind(fixed, confintfixed)); CI
 
 IRR <- exp(fixed); IRR #odds ratio
 1/IRR - 1 #the odds of a social bond being non-kin increased by 19%
@@ -102,6 +101,9 @@ predictions.3 <- ggpredict(
   typical = "mean",
 #  bias_correction = TRUE
 )
+
+predictions.3$predicted[predictions.3$x==5]
+predictions.3$predicted[predictions.3$x==10]
 
 
 figure3 <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonkin/top3.total)) +
@@ -125,34 +127,4 @@ ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 10, he
 #ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "jpeg")
 
 
-
-
-
-
-
-#count the subjects that had at least 1 non-kin bonds when having ? available kin
-newdata <- numbers.all %>%
-  filter(focal.kin.available == 1)
-nrow(newdata)
-
-newdata.nonkin <- newdata %>%
-  filter(top3.nonkin > 0) 
-nrow(newdata.nonkin)/nrow(newdata)
-
-newdata.only.nonkin <- newdata %>%
-  filter(top3.kin == 0) 
-nrow(newdata.only.nonkin)/nrow(newdata)
-
-#calculate the estimated proportion of non-kin bonds 
-newdata <- data.frame(
-  focal.kin.available = 10,
-  age = mean(numbers.all$age, na.rm = TRUE),  # Set other predictors as desired
-  percofsex.dominated = mean(numbers.all$percofsex.dominated, na.rm = TRUE),
-  group.size = mean(numbers.all$group.size, na.rm = TRUE),
-  social.group = NA,  # Random effects left unspecified for marginal prediction
-  id = NA,
-  year = NA
-)
-
-predict(model3, newdata, type = "response", re.form = NA)
 

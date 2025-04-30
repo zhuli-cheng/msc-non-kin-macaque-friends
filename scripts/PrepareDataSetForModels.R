@@ -93,6 +93,7 @@ sum(Top3.focal$top3.total == 2)#38
 sum(Top3.focal$top3.total == 3)#879
 sum(Top3.focal$top3.total == 4)#31
 sum(Top3.focal$top3.total == 5)#3
+sum(Top3.focal$top3.total > 5)#1
 
 #half the dataset because partner1&partner2 = partner2&partner1
 half.dyads<- all.dyads %>%
