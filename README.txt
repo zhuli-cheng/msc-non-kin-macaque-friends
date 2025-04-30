@@ -2,7 +2,7 @@ This directory contains input data and R scripts that are needed to reproduce th
 
 It also contains an output folder produced from running the scripts on the input data. 
 
-The workflow is as follows. However, It is unnecessary to run the scripts one by one based on this workflow. Within each script, it is made explicit the other scripts and input data that it is dependant on. You do need to make sure that the directory is downloaded as one singular folder and that the R packages are installed on an R platform of a compatible version. 
+The workflow is as follows. However, it is unnecessary to run the scripts one by one based on this workflow. Within each script, it is made explicit the other scripts and input data that it is dependant on. You do need to make sure that the directory is downloaded as one singular folder and that the R packages are installed on an R platform of a compatible version. 
 
 Workflow: 
 1.  LoadRpackages.R
@@ -18,4 +18,4 @@ Results from CalculateDSI.R will save into the folder: ./output/DSI. This folder
     3. Q3.R
     4. Appendices.R
 
-IMPORTANT: the input folder and output/DSI folder are not uploaded on the GitHub page. Instead, analyses can be run using the output/DSI_scrambled.csv file. 
+IMPORTANT: the input folder and "output/DSI" folder are not uploaded on the GitHub page. Instead, analyses can be run using the output/DSI_scrambled.csv file. 
