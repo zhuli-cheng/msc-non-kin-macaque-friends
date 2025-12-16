@@ -15,7 +15,7 @@ sna <- function (gy) {
   set.seed(42)
   
   G <- graph.adjacency(dd, mode = "undirected", weighted = T) 
-  E(G)$color <- ifelse(E(G)$weight < 0, "#00BFC4", "#E55B4E")
+  E(G)$color <- ifelse(E(G)$weight < 0, "#56B4E9", "#E69F00")
   E(G)$weight <- abs(E(G)$weight)
   V(G)$kin.available = (as.numeric(data$focal.kin.available[match(V(G)$name, data$id)]))
   V(G)$label.cex <- 0.5
@@ -64,7 +64,7 @@ sna.figure1d <- function (gy) {
   set.seed(42)
   
   G <- graph.adjacency(dd, mode = "undirected", weighted = T) 
-  E(G)$color <- ifelse(E(G)$weight < 0, "#00BFC4", "#E55B4E")
+  E(G)$color <- ifelse(E(G)$weight < 0, "#56B4E9", "#E69F00")
   E(G)$weight <- abs(E(G)$weight)
   V(G)$kin.available = (as.numeric(data$focal.kin.available[match(V(G)$name, data$id)]))
   V(G)$label.cex <- 0.5

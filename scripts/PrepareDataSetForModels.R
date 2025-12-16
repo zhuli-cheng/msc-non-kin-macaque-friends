@@ -52,6 +52,12 @@ plot(density(all.focal$hrs.focalfollowed))
 mean(all.focal$hrs.focalfollowed)#5.33
 range(all.focal$hrs.focalfollowed)#0.75 - 10.83
 
+all.focal.F <- all.focal %>%
+  filter(social.group == "F")
+mean(all.focal.F$hrs.focalfollowed)#5.89
+range(all.focal.F$hrs.focalfollowed)#1.17 - 9.83
+
+
 #number of scans on focal females
 hist(all.focal$focal.total.scan, breaks = 153)
 mean(all.focal$focal.total.scan)#95.75

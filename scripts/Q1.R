@@ -72,8 +72,9 @@ figure1a <- ggplot(half.dyads, aes(x = r, y = DSI)) +
   labs(x = "Relatedness (r)", y = "Relationship strength (DSI)", color = " ") +
   theme_classic() +
   guides(color = "none", size = guide_legend("No. of dyad-years")) + # Remove color legend, keep size legend
-  scale_color_manual(values = c("#E55B4E", "#00BFC4"), labels = c("Kin", "Non-kin")) +
-  scale_x_continuous(breaks = seq(0, 0.5, by = 0.125)) +
+  scale_color_manual(values = c("#E69F00", "#56B4E9"), labels = c("Kin", "Non-kin")) +
+#  scale_fill_viridis() +
+    scale_x_continuous(breaks = seq(0, 0.5, by = 0.125)) +
   scale_y_continuous(breaks = seq(0, 140, by = 20)) +
   theme(legend.position = c(0.05, 0.9),
         legend.justification = c(0, 1),
@@ -158,7 +159,7 @@ figure1b <- ggplot(all.dyads.1b, aes(x = r)) +
   labs(x = "Relatedness (r)", y = "Probability of social bond") +
   theme_classic() +
   guides(color = "none", size = guide_legend("No. of dyad-years")) + # Remove color legend, keep size legend
-  scale_color_manual(values = c("#E55B4E", "#00BFC4"), labels = c("Kin", "Non-kin")) +
+  scale_color_manual(values = c("#E69F00", "#56B4E9"), labels = c("Kin", "Non-kin")) +
   scale_x_continuous(breaks = seq(0, 0.5, by = 0.125)) +
   theme(legend.position = c(0.05, 0.9),
         legend.justification = c(0, 1),
@@ -184,7 +185,7 @@ figure1c <- ggplot(data = Top3, aes(x = order.of.partner, y = DSI + 0.001))  +
   geom_violin(aes(fill = kinship)) +
   facet_wrap(~ order.of.partner, scales = "free_x", labeller = labeller(order.of.partner = c("1" = "1st bond", "2" = "2nd bond", "3" = "3rd bond"))) +
   stat_summary(fun.data = give.n, geom = "text", fun = median, aes(group = kinship), position = position_dodge(width = 0.9), , hjust = 0.5, size = 3.5, color = "white") +
-  scale_fill_manual(values = c("#E55B4E", "#00BFC4")) +
+  scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
   theme_bw() +
   xlab(NULL) +
   ylab ("Relationship strength (DSI)") +
@@ -243,7 +244,7 @@ figure1d <- grImport2::pictureGrob(figure1d)
 
 legend_plot <- ggplot(data.frame(x = c(1, 2), y = c(1, 2), group = c("Kin", "Non-kin")), aes(x, y, color = group)) +
   geom_point(size = 5) +
-  scale_color_manual(values = c("Kin" = "#E55B4E", "Non-kin" = "#00BFC4")) +
+  scale_color_manual(values = c("Kin" = "#E69F00", "Non-kin" = "#56B4E9")) +
   labs(color = "") +
   theme(legend.position = "bottom",
         legend.title = element_text(size = 14),

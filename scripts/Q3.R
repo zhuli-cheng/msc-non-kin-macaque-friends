@@ -43,6 +43,10 @@ range(years$n)# 1 - 8 years
 #availability of kin groupmates
 mean(numbers.all$focal.kin.available)#5.62
 range(numbers.all$focal.kin.available)# 0 - 18
+sum(numbers.all$focal.kin.available==0)
+sum(numbers.all$focal.kin.available==1)
+sum(numbers.all$focal.kin.available==2)
+sum(numbers.all$focal.kin.available>2)
 
 #availability of kin and non-kin groupmates
 mean(numbers.all$group.size)
@@ -92,8 +96,9 @@ IRR <- exp(fixed); IRR #odds ratio
 1/IRR - 1 #the odds of a social bond being non-kin increased by 19%
 
 #plot
+#figure 3a
 kin.intervals <- seq(0, 18, by = 0.001)
-predictions.3 <- ggpredict(
+predictions.3.kin.availability <- ggpredict(
   model = model3,
   terms = "focal.kin.available [kin.intervals]",
   ci_level = 0.95,
@@ -102,16 +107,19 @@ predictions.3 <- ggpredict(
 #  bias_correction = TRUE
 )
 
-predictions.3$predicted[predictions.3$x==5]
-predictions.3$predicted[predictions.3$x==10]
+predictions.3.kin.availability$predicted[predictions.3.kin.availability$x==5]
+predictions.3.kin.availability$predicted[predictions.3.kin.availability$x==10]
 
 
-figure3 <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonkin/top3.total)) +
+figure3.kin.availability <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonkin/top3.total)) +
   geom_count(alpha = 0.6) +
-  scale_size_area(breaks = c(1, 10, 50)) +
-  geom_line(data = predictions.3, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
+  scale_size_area(
+    breaks = c(1, 10, 50),
+    limits = c(1, 100),
+  ) +
+  geom_line(data = predictions.3.kin.availability, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
 #  geom_line(data = predictions.3.average, aes(x = x, y = predicted), color = "red", size = 1) +  # Predicted line
-  geom_ribbon(data = predictions.3, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
+  geom_ribbon(data = predictions.3.kin.availability, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
   theme_classic() +
   xlab("Number of available kin") +
   ylab ("Probability of bond partner being non-kin") +
@@ -120,11 +128,102 @@ figure3 <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonk
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=18)) +
-  guides(size=guide_legend("No. of subject-years")); figure3
+  guides(size="none"); figure3.kin.availability
 
 
-ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "svg")
+ggsave("../output/figures_main_text/Figure3a.svg", plot = figure3.kin.availability, width = 10, height = 6, dpi = 1200, device = "svg")
 #ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "jpeg")
+
+#figure 3b
+age.intervals <- seq(6, 28, by = 0.01)
+
+predictions.3.age <- ggpredict(
+  model = model3,
+  terms = "age [age.intervals]",
+  ci_level = 0.95,
+  type = "fixed",
+  typical = "mean",
+  #  bias_correction = TRUE
+)
+
+
+figure3.age <- ggplot(data = numbers.all, aes(x = age, y = top3.nonkin/top3.total)) +
+  geom_count(alpha = 0.6) +
+  scale_size_area(
+    breaks = c(1, 10, 50),
+    limits = c(1, 100),
+  ) +
+  geom_line(data = predictions.3.age, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
+  #  geom_line(data = predictions.3.average, aes(x = x, y = predicted), color = "red", size = 1) +  # Predicted line
+  geom_ribbon(data = predictions.3.age, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
+  theme_classic() +
+  xlab("Age (year)") +
+  theme(axis.title.y = element_blank()) +
+  labs(title = "") +
+  scale_x_continuous(breaks = seq(6, 28, by = 2)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=18)) +
+  guides(size="none"); figure3.age
+
+ggsave("../output/figures_main_text/Figure3b.svg", plot = figure3.age, width = 10, height = 6, dpi = 1200, device = "svg")
+
+#figure 3c
+rank.intervals <- seq(0, 100, by = 0.1)
+
+predictions.3.rank <- ggpredict(
+  model = model3,
+  terms = "percofsex.dominated [rank.intervals]",
+  ci_level = 0.95,
+  type = "fixed",
+  typical = "mean",
+  #  bias_correction = TRUE
+)
+
+
+figure3.rank <- ggplot(data = numbers.all, aes(x = percofsex.dominated, y = top3.nonkin/top3.total)) +
+  geom_count(alpha = 0.6) +
+  scale_size_area(
+    breaks = c(1, 10, 50),
+    limits = c(1, 100),
+  ) +
+  theme_classic() +
+  xlab("Rank (%)") +
+  theme(axis.title.y = element_blank()) +
+  labs(title = "") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10)) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=18)) +
+  guides(size=guide_legend("No. of female-years")) +
+  theme(legend.position = c(0.4, 0.06),
+        legend.justification = c(0, 0), 
+        legend.background = element_rect(fill = "white"),
+        legend.key = element_rect(fill = "white", colour = NA),
+        legend.box.background = element_rect(colour = "black", size = 0.6),
+        legend.key.size  = unit(3, "mm"),
+        legend.key.width = unit(2.5, "mm"),
+        legend.spacing.y = unit(0.7, "mm"),
+        legend.box.margin = margin(1, 1, 1, 1)) +
+  annotate(
+    "text",
+    x = 80,                          # adjust position
+    y = 0.9,                         # adjust position
+    label = "NS",
+    size = 6,
+    fontface = "italic"
+  ); figure3.rank
+
+
+ggsave("../output/figures_main_text/Figure3c.svg", plot = figure3.rank, width = 10, height = 6, dpi = 1200, device = "svg")
+
+#combine the three plots in figure3
+figure3 <- (figure3.kin.availability + figure3.age + figure3.rank) &
+  plot_annotation(tag_levels = list(c("3A","3B","3C"))); figure3
+
+ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 12, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
+
 
 
 

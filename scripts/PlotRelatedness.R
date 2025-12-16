@@ -4,7 +4,7 @@ source("CalculateRelatedness.R")
 #choose colors 
 transparent_color <- rgb(1, 1, 1, alpha = 0)
 #diag(data) <- transparent_color
-blue_to_pink <- colorRampPalette(c("#00BFC4", "#66D8DB", "#FDD3C9", "#FDC9B7", "#FDB8B0", "#FDAF9F", "#FCACA0", "#FA9A8C", "#E55B4E"))
+blue_to_pink <- colorRampPalette(c("#1F78B4", "#56B4E9", "#F8EFA6", "#F0E442", "#F2D94F", "#F4CE2C", "#F5C710", "#EFB507", "#D99800"))
 # 0.5625/9*2=0.125
 
 #create a function for heatmaps
