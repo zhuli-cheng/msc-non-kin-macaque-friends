@@ -27,12 +27,12 @@ sna <- function (gy) {
 
   plot_info <- par("usr")
   x_bottom_center <- (plot_info[1] + plot_info[2])/2
-  mtext(paste0("Figure S", i, ": Social network of ", gy,". The subjects had ", min(data$focal.kin.available), "-", max(data$focal.kin.available), " adult female kin groupmates."), side = 1, line = 3, adj = 0, cex = 0.8)
-  }
+  mtext(paste0("Figure S", i, ". Social network of ", gy,". The subjects had ", min(data$focal.kin.available), "-", max(data$focal.kin.available), " adult female kin groupmates."), side = 1, line = 3, adj = 0, cex = 0.8)
+}
 
 
 #save as one pdf
-i=19
+i=21
 pdf(paste0("../output/supplementary_materials/social networks/Supplementary_Materials_Social_networks.pdf"), width = 8, height = 6)
 for (gy in group.years) {
   i=i+1
@@ -41,7 +41,7 @@ for (gy in group.years) {
 dev.off()
 
 #save as separate svg
-i=19
+i=21
 for (gy in group.years) {
   i=i+1
   svg(filename = paste0("../output/supplementary_materials/social networks/separately/", gy, ".svg"))

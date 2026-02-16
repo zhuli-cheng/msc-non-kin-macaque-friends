@@ -19,7 +19,7 @@ relatedness_heatmap <- function(gy) {
  #         main = paste("Relatedness coefficients (r) between adult females in", gy),
           cexRow = 0.3, cexCol = 0.3,
           width = 6, height = 5, zlim = c(0, 0.5625))
-  mtext(paste0("Figure S", i, ": Relatedness coefficients (r) between adult female subjects in ", gy, "."), side = 1, line = 3, adj = 0, cex = 0.8)
+  mtext(paste0("Figure S", i, ". Relatedness coefficients (r) between adult female subjects in ", gy, "."), side = 1, line = 3, adj = 0, cex = 0.8)
   
   # Create a color scale legend
   image.plot(z = matrix(0:1, nrow = 10), zlim = c(0, 0.5625), col = blue_to_pink(256), legend.only = TRUE, legend.width = 0.5,
@@ -29,7 +29,7 @@ relatedness_heatmap <- function(gy) {
 
 #save as one pdf
 pdf("../output/supplementary_materials/relatedness heatmaps/Supplementary_Materials_Relatedness_coefficients_heatmaps.pdf", width = 8, height = 6)
-i=0
+i=2
 for (gy in group.years) {
   i=i+1
   relatedness_heatmap(gy)

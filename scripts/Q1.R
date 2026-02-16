@@ -82,7 +82,7 @@ figure1a <- ggplot(half.dyads, aes(x = r, y = DSI)) +
         axis.title=element_text(size=14)); figure1a
 
 
-ggsave("../output/figures_main_text/Figure1a.svg", plot = figure1a, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure1a.svg", plot = figure1a, width = 10, height = 6, dpi = 1200, device = "svg")
 
 
 #########################################
@@ -166,7 +166,7 @@ figure1b <- ggplot(all.dyads.1b, aes(x = r)) +
         axis.text=element_text(size=12),
         axis.title=element_text(size=14)); figure1b
 
-ggsave("../output/figures_main_text/Figure1b.svg", plot = figure1b, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure1b.svg", plot = figure1b, width = 10, height = 6, dpi = 1200, device = "svg")
 
 
 ##################################
@@ -198,7 +198,7 @@ figure1c <- ggplot(data = Top3, aes(x = order.of.partner, y = DSI + 0.001))  +
         axis.title=element_text(size=14),
         strip.text = element_text(size = 14, face = "bold")); figure1c
 
-ggsave("../output/figures_main_text/Figure1c.svg", plot = figure1c, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure1c.svg", plot = figure1c, width = 10, height = 6, dpi = 1200, device = "svg")
 
 #number of non-kin in a female's top 3
 #filter female-years without social bonds
@@ -258,7 +258,7 @@ figure1 <- ((figure1a + figure1b) / (figure1c + figure1d)) / legend +
   plot_annotation(tag_levels = list(c('1A', '1B', '1C', '1D'))) +
   plot_layout(heights = c(10, 10, 1), widths = c(1, 1)); figure1
 
-ggsave("../output/figures_main_text/Figure1.svg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure1.svg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "svg")
 #ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
 
 

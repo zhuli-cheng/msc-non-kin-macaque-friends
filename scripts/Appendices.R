@@ -20,19 +20,27 @@ pedigree.depth <- pedigree.depth %>%
   select(id, social.group, year, focal.kin.available, depth) %>%
   unique()
 
-figure.sup1 <- ggplot(pedigree.depth, aes(x = focal.kin.available, y = depth)) +
+figure.sup2 <- ggplot(pedigree.depth, aes(x = focal.kin.available, y = depth)) +
   geom_count(alpha = 3) +
   scale_size_area(breaks = c(1, 10, 20, 30, 40)) +
   theme_classic() +
-  theme(axis.text.x  = element_text(vjust = 0.5, size = 12, colour = "black")) +
+  theme(axis.text.x  = element_text(vjust = 0.5, size = 10, colour = "black")) +
   scale_x_continuous(breaks = seq(0, 18, by = 2)) +
-  theme(axis.text.y  = element_text(vjust = 0.5, size = 12, colour = "black")) +
-  theme(axis.title = element_text(size = 14, vjust = -5))  +
-  labs(color = " ", x = "Number of available kin", y = "Pedigree depth", size = "No. of female-years"); figure.sup1
-ggsave("../output/figures_main_text/FigureA2.svg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "svg")
-#ggsave("../output/figures_main_text/PedigreeDepthKinAvailability.jpeg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "jpeg")
+  theme(axis.text.y  = element_text(vjust = 0.5, size = 10, colour = "black")) +
+  theme(axis.title = element_text(size = 12, vjust = -5))  +
+  theme(plot.caption = element_text(size = 12, hjust = 0, margin = margin(t = 16))) +
+  labs(color = " ", x = "Number of available kin", y = "Pedigree depth",
+    size = "No. of female-years", caption = str_wrap("Figure S2. Number of available kin as a function of pedigree depth. Although some of the subjects have few available kin, this was not caused by a lack of information on their pedigree.", width = 90)); figure.sup2
 
+pdf("../output/supplementary_materials/pedigree_S2.pdf", width = 8.27, height = 11.69)
+grid.newpage()
+print(figure.sup2, vp = viewport(width = unit(18, "cm"),
+                    height = unit(12, "cm"),
+                    x = 0.5, y = 0.6)) 
 
+dev.off()
+
+#########################
 pedigree.depth.group <- pedigree.depth %>%
   select(id, social.group, depth) %>%
   unique()
@@ -41,21 +49,28 @@ pedigree.depth.group$depth <- as.numeric(pedigree.depth.group$depth)
 mean(pedigree.depth.group$depth) #mean depth is 3.22
 range(pedigree.depth.group$depth) # range: 1-6
 
-figure.sup2 <- ggplot(pedigree.depth.group, aes(x = depth)) +
+figure.sup1 <- ggplot(pedigree.depth.group, aes(x = depth)) +
   geom_histogram(alpha = 0.5) +
   facet_wrap(~toupper(social.group))+
   labs(title = "",
        x = "Pedigree depth",
-       y = "Number of subjects") +
+       y = "Number of subjects", 
+       caption = "Figure S1. Distribution of pedigree depth for the 347 subjects from the six social groups.") +
   scale_x_continuous(breaks=c(0:6), labels=c(0:6),limits=c(0,6)) +
   theme_bw() +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=14),
-        strip.text = element_text(size = 14)); figure.sup2
-ggsave("../output/figures_main_text/FigureA1.svg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "svg")
-#ggsave("../output/figures_main_text/PedigreeDepthByGroup.jpeg", plot = figure.sup2, width = 6, height = 4, dpi = 1200, device = "jpeg")
+        strip.text = element_text(size = 14)) +
+  theme(plot.caption = element_text(size = 12, hjust = 0, margin = margin(t = 16))); figure.sup1
+#ggsave("../output/supplementary_materials/pedigree_S1.svg", plot = figure.sup1, width = 6, height = 4, dpi = 1200, device = "svg")
+pdf("../output/supplementary_materials/pedigree_S1.pdf", width = 8.27, height = 11.69)
+grid.newpage()
+print(figure.sup1, vp = viewport(width = unit(18, "cm"),
+                                 height = unit(12, "cm"),
+                                 x = 0.5, y = 0.6)) 
 
+dev.off()
 
 
 ############### DSI (~r, grooming and proximity) #############

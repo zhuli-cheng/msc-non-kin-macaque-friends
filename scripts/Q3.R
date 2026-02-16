@@ -131,7 +131,7 @@ figure3.kin.availability <- ggplot(data = numbers.all, aes(x = focal.kin.availab
   guides(size="none"); figure3.kin.availability
 
 
-ggsave("../output/figures_main_text/Figure3a.svg", plot = figure3.kin.availability, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure3a.svg", plot = figure3.kin.availability, width = 10, height = 6, dpi = 1200, device = "svg")
 #ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 10, height = 6, dpi = 1200, device = "jpeg")
 
 #figure 3b
@@ -166,7 +166,7 @@ figure3.age <- ggplot(data = numbers.all, aes(x = age, y = top3.nonkin/top3.tota
         axis.title=element_text(size=18)) +
   guides(size="none"); figure3.age
 
-ggsave("../output/figures_main_text/Figure3b.svg", plot = figure3.age, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure3b.svg", plot = figure3.age, width = 10, height = 6, dpi = 1200, device = "svg")
 
 #figure 3c
 rank.intervals <- seq(0, 100, by = 0.1)
@@ -215,13 +215,13 @@ figure3.rank <- ggplot(data = numbers.all, aes(x = percofsex.dominated, y = top3
   ); figure3.rank
 
 
-ggsave("../output/figures_main_text/Figure3c.svg", plot = figure3.rank, width = 10, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure3c.svg", plot = figure3.rank, width = 10, height = 6, dpi = 1200, device = "svg")
 
 #combine the three plots in figure3
 figure3 <- (figure3.kin.availability + figure3.age + figure3.rank) &
   plot_annotation(tag_levels = list(c("3A","3B","3C"))); figure3
 
-ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 12, height = 6, dpi = 1200, device = "svg")
+#ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 12, height = 6, dpi = 1200, device = "svg")
 #ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
 
 
