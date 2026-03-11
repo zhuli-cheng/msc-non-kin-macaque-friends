@@ -27,7 +27,7 @@ sna <- function (gy) {
 
   plot_info <- par("usr")
   x_bottom_center <- (plot_info[1] + plot_info[2])/2
-  mtext(paste0("Figure S", i, ". Social network of ", gy,". The subjects had ", min(data$focal.kin.available), "-", max(data$focal.kin.available), " adult female kin groupmates."), side = 1, line = 3, adj = 0, cex = 0.8)
+#  mtext(paste0("Figure S", i, ". Social network of ", gy,". The subjects had ", min(data$focal.kin.available), "-", max(data$focal.kin.available), " adult female kin groupmates."), side = 1, line = 3, adj = 0, cex = 0.8)
 }
 
 
@@ -69,16 +69,17 @@ sna.figure1d <- function (gy) {
   V(G)$kin.available = (as.numeric(data$focal.kin.available[match(V(G)$name, data$id)]))
   V(G)$label.cex <- 0.5
   
-  plot.igraph(G, vertex.size = (V(G)$kin.available) ^ (1/1.2),
+  figured <- plot.igraph(G, vertex.size = (V(G)$kin.available) ^ (1/1.2),
               edge.width = E(G)$weight * 0.3,
               vertex.frame.color = "#ffffff",
               vertex.color = "grey",
               vertex.label = NA,
-              margin = c(-0.1))
+              margin = c(0))
   
+  box(col = "black", lwd = 2)
 }
 
-svg(filename = "../output/figures_main_text/Figure1d.svg")
+svg(filename = "../output/figures_main_text/Figure1d.svg", width = 11, height = 9)
 par(mar = c(0, 0, 0, 0))  # No margins (bottom, left, top, right)
 sna.figure1d("F2010")
 dev.off()

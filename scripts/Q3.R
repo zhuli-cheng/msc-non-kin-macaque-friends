@@ -113,22 +113,17 @@ predictions.3.kin.availability$predicted[predictions.3.kin.availability$x==10]
 
 figure3.kin.availability <- ggplot(data = numbers.all, aes(x = focal.kin.available, y = top3.nonkin/top3.total)) +
   geom_count(alpha = 0.6) +
-  scale_size_area(
-    breaks = c(1, 10, 50),
-    limits = c(1, 100),
-  ) +
+  scale_size_area(breaks = c(1, 10, 50), limits = c(1, 100)) +
   geom_line(data = predictions.3.kin.availability, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
 #  geom_line(data = predictions.3.average, aes(x = x, y = predicted), color = "red", size = 1) +  # Predicted line
   geom_ribbon(data = predictions.3.kin.availability, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
-  theme_classic() +
+  theme_AnimalBehaviour() +
   xlab("Number of available kin") +
   ylab ("Probability of bond partner being non-kin") +
-  labs(title = "") +
   scale_x_continuous(breaks = seq(0, 18, by = 2)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=18)) +
-  guides(size="none"); figure3.kin.availability
+  guides(size="none") +
+  scale_clean_x() +
+  scale_clean_y(limits = c(0, 1.1), breaks = seq(0, 1, by = 0.25)); figure3.kin.availability
 
 
 #ggsave("../output/figures_main_text/Figure3a.svg", plot = figure3.kin.availability, width = 10, height = 6, dpi = 1200, device = "svg")
@@ -149,22 +144,15 @@ predictions.3.age <- ggpredict(
 
 figure3.age <- ggplot(data = numbers.all, aes(x = age, y = top3.nonkin/top3.total)) +
   geom_count(alpha = 0.6) +
-  scale_size_area(
-    breaks = c(1, 10, 50),
-    limits = c(1, 100),
-  ) +
+  scale_size_area(breaks = c(1, 10, 50), limits = c(1, 100)) +
   geom_line(data = predictions.3.age, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
-  #  geom_line(data = predictions.3.average, aes(x = x, y = predicted), color = "red", size = 1) +  # Predicted line
   geom_ribbon(data = predictions.3.age, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
-  theme_classic() +
+  theme_AnimalBehaviour() +
   xlab("Age (year)") +
-  theme(axis.title.y = element_blank()) +
-  labs(title = "") +
-  scale_x_continuous(breaks = seq(6, 28, by = 2)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=18)) +
-  guides(size="none"); figure3.age
+  ylab(NULL) +
+  guides(size="none") +
+  scale_clean_x(breaks = seq(6, 28, by = 5)) +
+  scale_clean_y(limits = c(0, 1.1), breaks = seq(0, 1, by = 0.25)); figure3.age
 
 #ggsave("../output/figures_main_text/Figure3b.svg", plot = figure3.age, width = 10, height = 6, dpi = 1200, device = "svg")
 
@@ -183,46 +171,35 @@ predictions.3.rank <- ggpredict(
 
 figure3.rank <- ggplot(data = numbers.all, aes(x = percofsex.dominated, y = top3.nonkin/top3.total)) +
   geom_count(alpha = 0.6) +
-  scale_size_area(
-    breaks = c(1, 10, 50),
-    limits = c(1, 100),
-  ) +
-  theme_classic() +
+  scale_size_area(breaks = c(1, 10, 50), limits = c(1, 100)) +
+  theme_AnimalBehaviour() +
   xlab("Rank (%)") +
   theme(axis.title.y = element_blank()) +
-  labs(title = "") +
   scale_x_continuous(breaks = seq(0, 100, by = 10)) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=18)) +
   guides(size=guide_legend("No. of female-years")) +
-  theme(legend.position = c(0.4, 0.06),
+  theme(legend.position = c(0.3, 0.06),
         legend.justification = c(0, 0), 
         legend.background = element_rect(fill = "white"),
         legend.key = element_rect(fill = "white", colour = NA),
         legend.box.background = element_rect(colour = "black", size = 0.6),
-        legend.key.size  = unit(3, "mm"),
-        legend.key.width = unit(2.5, "mm"),
-        legend.spacing.y = unit(0.7, "mm"),
+        legend.key.size  = unit(2, "mm"),
+        legend.key.width = unit(2, "mm"),
+        legend.spacing.y = unit(0.5, "mm"),
         legend.box.margin = margin(1, 1, 1, 1)) +
-  annotate(
-    "text",
-    x = 80,                          # adjust position
-    y = 0.9,                         # adjust position
-    label = "NS",
-    size = 6,
-    fontface = "italic"
-  ); figure3.rank
+  scale_clean_x() +
+  scale_clean_y(limits = c(0, 1.1), breaks = seq(0, 1, by = 0.25)) +
+  annotate("text", x = 80, y = 0.9, label = "NS", size = 6, fontface = "italic"); figure3.rank
 
 
 #ggsave("../output/figures_main_text/Figure3c.svg", plot = figure3.rank, width = 10, height = 6, dpi = 1200, device = "svg")
 
 #combine the three plots in figure3
 figure3 <- (figure3.kin.availability + figure3.age + figure3.rank) &
-  plot_annotation(tag_levels = list(c("3A","3B","3C"))); figure3
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") &
+  theme(plot.tag = element_text(face = "plain"), plot.tag.position = c(0.1, 0.95), plot.tag.location = "panel"); figure3
 
 #ggsave("../output/figures_main_text/Figure3.svg", plot = figure3, width = 12, height = 6, dpi = 1200, device = "svg")
-#ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
+ggsave("../output/figures_main_text/Figure3.jpeg", plot = figure3, width = 12, height = 6, dpi = 1200, device = "jpeg")
 
 
 

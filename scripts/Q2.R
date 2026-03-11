@@ -94,22 +94,26 @@ exp(fixed[1] + fixed[3])
 
 
 #figure2a
-figure2a <- ggplot(years.in.top3, aes(x= years.in.top3,  fill=kinship)) +
-  geom_bar(aes(y = ..prop.., stat="count")) +
+figure2a <- ggplot(years.in.top3, aes(x=years.in.top3, fill=kinship)) +
+  geom_bar(aes(y = ..prop..), stat = "count") +
   geom_text(aes(label = scales::percent(..prop.., accuracy = 1),
                  y= ..prop.. ), stat= "count", vjust = -.1, size = 3) +
   labs(y = "Percentage of bonded dyads", x = "Total number of years bonded") +
-  facet_grid(~kinship, labeller = labeller(kinship = c("kin" = "Kin", "non-kin" = "Non-kin"))) +
+  facet_wrap(~kinship, nrow = 1, scales = "free_x") +
   scale_fill_manual(values = c("kin" = "#E69F00",  "non-kin" = "#56B4E9")) +
   scale_y_continuous(labels = scales::percent) + 
   scale_x_continuous(breaks=c(1:8), labels=c(1:8),limits=c(0,8)) +
   theme_bw() +
-  theme(panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(),
-    axis.text=element_text(size=12),
-    axis.title=element_text(size=14),
-    strip.text = element_text(size = 14, face = "bold")) +
-    theme(legend.position = "none"); figure2a
+  theme(legend.position = "none", 
+        axis.ticks.length = unit(-0.25, "cm"),
+        axis.text = element_text(size = 16, face = "plain"),
+        axis.title = element_text(size = 18, face = "plain"),
+        strip.text = element_text(size = 18, face = "plain"),
+        legend.title = element_text(size = 16, face = "plain"),
+        legend.text = element_text(size = 15, face = "plain"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        plot.background = element_rect(color = "black", size = 1, fill = NA)); figure2a
 
 #ggsave("../output/figures_main_text/Figure2a.svg", plot = figure2a, width = 10, height = 6, dpi = 1200, device = "svg")
 
@@ -193,35 +197,27 @@ predictions.2b <- ggpredict(
 figure2b <- ggplot(variability, aes(x = kinship, y = RSD, color = kinship, fill = kinship)) +
   geom_violin(alpha = 0.25, linewidth = 1, color = "grey40") +
   geom_jitter(width = 0.15, alpha = 0.4, size = 0.5) +
-  geom_point(data = predictions.2b,
-             aes(x = x, y = predicted, color = x),
-             size = 3,
-             inherit.aes = FALSE) +
-  geom_errorbar(data = predictions.2b,
-                aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, color = x),
-                width = 0.1,
-                linewidth = 1.5,
-                inherit.aes = FALSE) +
-  scale_color_manual(name = "Kinship",
-                     values = c("kin" = "#E69F00", "non-kin" = "#56B4E9"),
-                     labels = c("kin" = "Kin", "non-kin" = "Non-kin")) +
-  scale_fill_manual(name = "Kinship",
-                     values = c("kin" = "white", "non-kin" = "white"),
-                     labels = c("kin" = "Kin", "non-kin" = "Non-kin")) +
+  geom_point(data = predictions.2b, aes(x = x, y = predicted, color = x), size = 3, inherit.aes = FALSE) +
+  geom_errorbar(data = predictions.2b, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high, color = x), width = 0.1, linewidth = 1.5, inherit.aes = FALSE) +
+  scale_color_manual(name = "Kinship", values = c("kin" = "#E69F00", "non-kin" = "#56B4E9"), labels = c("kin" = "Kin", "non-kin" = "Non-kin")) +
+  scale_fill_manual(name = "Kinship", values = c("kin" = "white", "non-kin" = "white"), labels = c("kin" = "Kin", "non-kin" = "Non-kin")) +
   scale_x_discrete(labels = c("Kin bond dyad", "Non-kin bond dyad")) +
-  theme_classic() +
   labs(y = "Variability in relationship strength\n(CV in DSI)", x = "") +
-  theme(axis.text = element_text(size = 14), axis.title = element_text(size = 14)) +
+  theme_AnimalBehaviour() +
   theme(legend.position = "none"); figure2b
 
 
 #ggsave("../output/figures_main_text/Figure2b.svg", plot = figure2b, width = 10, kinship()
 #ggsave("../output/figures_main_text/Figure2b.svg", plot = figure2b, width = 10, height = 6, dpi = 1200, device = "svg")
 
+
 #Figure 2
-figure2 <- (figure2a + figure2b)  +
-  plot_annotation(tag_levels = 'A', tag_prefix = '2') +
-  plot_layout(widths = c(1, 1)); figure2
+figure2 <- (figure2a + figure2b) +
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") +
+  plot_layout(widths = c(1, 1), heights = c(1)) +  # force same height
+  theme(plot.tag = element_text(face = "plain"),
+        plot.tag.position = c(0.05, 0.95),
+        plot.tag.location = "panel"); figure2
 
 #ggsave("../output/figures_main_text/Figure2.svg", plot = figure2, width = 10, height = 6, dpi = 1200, device = "svg")
 ggsave("../output/figures_main_text/Figure2.jpeg", plot = figure2, width = 10, height = 6, dpi = 1200, device = "jpeg")

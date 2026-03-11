@@ -70,16 +70,12 @@ figure1a <- ggplot(half.dyads, aes(x = r, y = DSI)) +
   geom_line(data = predictions.1a, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
   geom_ribbon(data = predictions.1a, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
   labs(x = "Relatedness (r)", y = "Relationship strength (DSI)", color = " ") +
-  theme_classic() +
   guides(color = "none", size = guide_legend("No. of dyad-years")) + # Remove color legend, keep size legend
   scale_color_manual(values = c("#E69F00", "#56B4E9"), labels = c("Kin", "Non-kin")) +
-#  scale_fill_viridis() +
-    scale_x_continuous(breaks = seq(0, 0.5, by = 0.125)) +
-  scale_y_continuous(breaks = seq(0, 140, by = 20)) +
-  theme(legend.position = c(0.05, 0.9),
-        legend.justification = c(0, 1),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)); figure1a
+  scale_clean_x(breaks = seq(0, 0.5, by = 0.125)) +
+  scale_clean_y(breaks = seq(0, 140, by = 20)) +
+  theme_AnimalBehaviour() +
+  theme(legend.position = c(0.2, 0.8), legend.justification = c(0, 1)); figure1a
 
 
 #ggsave("../output/figures_main_text/Figure1a.svg", plot = figure1a, width = 10, height = 6, dpi = 1200, device = "svg")
@@ -154,17 +150,15 @@ mean(discussion$m.0)*predictions.1b$predicted[predictions.1b$x == 0]
 figure1b <- ggplot(all.dyads.1b, aes(x = r)) +
   geom_count(aes(y = top3, color = kinship), alpha = 3) +
   scale_size_area(breaks = c(1, 100, 10000, 32000)) +
-  geom_line(data = predictions.1b, aes(x = x, y = predicted), color = "grey20", size = 1) +  # Predicted line
+  geom_line(data = predictions.1b, aes(x = x, y = predicted), color = "grey20", size = 1) + 
   geom_ribbon(data = predictions.1b, aes(x = x, y = predicted, ymin = conf.low, ymax = conf.high), fill = "grey30", alpha = 0.2) +
   labs(x = "Relatedness (r)", y = "Probability of social bond") +
-  theme_classic() +
-  guides(color = "none", size = guide_legend("No. of dyad-years")) + # Remove color legend, keep size legend
+  guides(color = "none", size = guide_legend("No. of dyad-years")) + 
   scale_color_manual(values = c("#E69F00", "#56B4E9"), labels = c("Kin", "Non-kin")) +
-  scale_x_continuous(breaks = seq(0, 0.5, by = 0.125)) +
-  theme(legend.position = c(0.05, 0.9),
-        legend.justification = c(0, 1),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14)); figure1b
+  scale_clean_x(breaks = seq(0, 0.5, by = 0.125)) +
+  scale_clean_y(limits = c(0, 1.1), breaks = seq(0, 1, by = 1)) +
+  theme_AnimalBehaviour() +
+  theme(legend.position = c(0.2, 0.8), legend.justification = c(0, 1)); figure1b
 
 #ggsave("../output/figures_main_text/Figure1b.svg", plot = figure1b, width = 10, height = 6, dpi = 1200, device = "svg")
 
@@ -183,7 +177,7 @@ give.n <- function(x) {
 
 figure1c <- ggplot(data = Top3, aes(x = order.of.partner, y = DSI + 0.001))  +
   geom_violin(aes(fill = kinship)) +
-  facet_wrap(~ order.of.partner, scales = "free_x", labeller = labeller(order.of.partner = c("1" = "1st bond", "2" = "2nd bond", "3" = "3rd bond"))) +
+  facet_wrap(~ order.of.partner, scales = "free_x", labeller = as_labeller(c("1" = "1^st~bond", "2" = "2^nd~bond", "3" = "3^rd~bond"), label_parsed)) +
   stat_summary(fun.data = give.n, geom = "text", fun = median, aes(group = kinship), position = position_dodge(width = 0.9), , hjust = 0.5, size = 3.5, color = "white") +
   scale_fill_manual(values = c("#E69F00", "#56B4E9")) +
   theme_bw() +
@@ -194,9 +188,12 @@ figure1c <- ggplot(data = Top3, aes(x = order.of.partner, y = DSI + 0.001))  +
         axis.text.x = element_blank(), 
         axis.ticks.x = element_blank(),
         legend.position = "none",
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=14),
-        strip.text = element_text(size = 14, face = "bold")); figure1c
+        axis.text = element_text(size = 16, face = "plain"),
+        axis.title = element_text(size = 18, face = "plain"),
+        strip.text = element_text(size = 18, face = "plain"),
+        axis.ticks.length = unit(-0.25, "cm"),
+        axis.ticks = element_line(color = "black"), 
+        plot.background = element_rect(color = "black", size = 1, fill = NA)); figure1c
 
 #ggsave("../output/figures_main_text/Figure1c.svg", plot = figure1c, width = 10, height = 6, dpi = 1200, device = "svg")
 
@@ -242,6 +239,7 @@ IRR / (IRR + 1) #expected proportion of non-kin among all bonds
 figure1d <- readPicture("../output/figures_main_text/Figure1d.svg")
 figure1d <- grImport2::pictureGrob(figure1d)
 
+
 legend_plot <- ggplot(data.frame(x = c(1, 2), y = c(1, 2), group = c("Kin", "Non-kin")), aes(x, y, color = group)) +
   geom_point(size = 5) +
   scale_color_manual(values = c("Kin" = "#E69F00", "Non-kin" = "#56B4E9")) +
@@ -254,11 +252,12 @@ legend_plot <- ggplot(data.frame(x = c(1, 2), y = c(1, 2), group = c("Kin", "Non
 legend <- get_legend(legend_plot)
 
 
-figure1 <- ((figure1a + figure1b) / (figure1c + figure1d)) / legend +
-  plot_annotation(tag_levels = list(c('1A', '1B', '1C', '1D'))) +
-  plot_layout(heights = c(10, 10, 1), widths = c(1, 1)); figure1
+figure1 <- (figure1a + figure1b) /(figure1c + figure1d) / legend +
+  plot_layout(heights = c(10, 10, 1), widths = c(1, 1)) +
+  plot_annotation(tag_levels = "a", tag_prefix = "(", tag_suffix = ")") &
+  theme(plot.tag = element_text(face = "plain"), plot.tag.position = c(0.05, 0.95), plot.tag.location = "panel"); figure1
 
 #ggsave("../output/figures_main_text/Figure1.svg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "svg")
-#ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 12, height = 9, dpi = 1200, device = "jpeg")
+ggsave("../output/figures_main_text/Figure1.jpeg", plot = figure1, width = 16, height = 12, dpi = 1200, device = "jpeg")
 
 
