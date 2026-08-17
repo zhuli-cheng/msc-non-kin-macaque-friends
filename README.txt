@@ -1,5 +1,8 @@
 This directory contains input data and R scripts that are needed to reproduce the results and figures in this publication: 
 
+Cheng, Z., et al., Social bonds between nonkin are common, but less stable, in a mixed-related society,
+Animal Behaviour (2026), https://doi.org/10.1016/j.anbehav.2026.123661
+
 It also contains an output folder produced from running the scripts on the input data. 
 
 The workflow is as follows. However, it is unnecessary to run the scripts one by one based on this workflow. Within each script, it is made explicit the other scripts and input data that it is dependant on. You do need to make sure that the directory is downloaded as one singular folder and that the R packages are installed on an R platform of a compatible version. 
